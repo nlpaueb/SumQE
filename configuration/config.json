@@ -1,0 +1,23 @@
+{
+  "read_data": {
+    "years_to_read": ["2005"]
+  },
+
+  "hyper_optimization":{
+    "settings":{
+      "trials": 30,
+      "folds": 1,
+      "epochs": 50
+    },
+
+    "search_apace":{
+      "n_hidden_layers": [1, 2],
+      "hidden_units_size": [100, 200, 300],
+      "batch_size": [32, 64, 128],
+      "dropout_rate": [0.1, 0.2, 0.3, 0.4, 0.5],
+      "word_dropout_rate": [0.00, 0.01, 0.02],
+      "learning_rate": [0.001],
+      "attention_mechanism": ["attention"]
+    }
+  }
+}
