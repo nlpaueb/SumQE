@@ -4,7 +4,7 @@ This is the source code for SUM-QE, a BERT-based Summary Quality Estimation Mode
 > Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP 2019), November 3-7, Hong Kong. (to appear)*
 ---
 
-    @inproceedings{Xenouleas:EMNLP19,
+    @inproceedings{Xenouleas:EMNLP-IJCNLP19,
                    author        = {Xenouleas, Stratos, Malakasiotis, Prodromos, Apidianaki, Marianna and Androutsopoulos, Ion},
                    title         = {{SUM-QE: a BERT-based Summary Quality Estimation Model}},
                    fullbooktitle = {Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP 2019)},
