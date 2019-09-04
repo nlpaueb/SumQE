@@ -81,7 +81,7 @@ and corresponding human metric and year. Short the csv according to one these me
 
 2. The above experiments corresponds to all of the human metrics. At this section we are trying to approach 
 the 'behavior' of Q1 (Grammaticality) applying GPT and BERT Language models and calculating the perplexities of these 
-each time. In order to execute this experiment, run the following command. Don't forget to set True the corresponding flags on  ``main.py``:
+each time. In order to execute this experiment, run the following command. Don't forget to set True the corresponding FLAGS on  ``main.py`` at the start of the file.
 
         python src/main.py
         
@@ -95,12 +95,12 @@ each time. In order to execute this experiment, run the following command. Don't
             Q1-[LM] [year].png
     ``` 
 
-The .csv file contains the (Spearman, Kendall, Pearson) coorelations with the perplexities of k-worst bpes (each ttime) and the Q1 metric.
-The .pnf files contains a visulaizations of the .csv with x-axis corresponds to #bpes and y-axis to the corresponding correlation score.
-In particular, the above experiment will create the file /experiments_output/predictions of models.json where they will be stored all the prediction of the experiment you will run. On this file the will be stored only the perplexities of best-k-worst-bpes, not all of them.
+    * The .csv file contains the (Spearman, Kendall, Pearson) coorelations with the perplexities of k-worst bpes (each ttime) and the Q1 metric.
+    * The .png files contains a visulaizations of the .csv with x-axis corresponds to #bpes and y-axis to the corresponding correlation score.
+    * In particular, the above experiment will create the file /experiments_output/predictions of models.json where they will be stored all the prediction of the experiment you will run. On this file the will be stored only the perplexities of best-k-worst-bpes, not all of them.
 
-3. Now we will try to apprach the 'behavior' of Q3 (Referential Clarity), Q4 (Focus), Q5 (Structure & Coherence) applying BERT Next Sentense and calculating the perplexities sentence by sentence. In order to execute this experiment, run the following command. Don't forget to set True the corresponding flags on  ``main.py``:
+3. Now we will try to apprach the 'behavior' of Q3 (Referential Clarity), Q4 (Focus), Q5 (Structure & Coherence) applying BERT Next Sentense and calculating the perplexities sentence by sentence. In order to execute this experiment, run the following command. Don't forget to set True the corresponding FLAGS on  ``main.py`` at the start of the file.
 
         python src/main.py
 
-This will not produce anything but it will update only the predictions of models.json 
+    This will not produce anything but it will update only the predictions of models.json 
