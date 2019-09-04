@@ -2,6 +2,7 @@ import collections
 import unicodedata
 import six
 import tensorflow as tf
+from numpy import unicode
 
 
 def convert_to_unicode(text):
@@ -265,21 +266,6 @@ class WordpieceTokenizer(object):
         return output_tokens
 
 
-def load_vocab(vocab_file):
-    """Loads a vocabulary file into a dictionary."""
-    vocab = collections.OrderedDict()
-    index = 0
-    with tf.gfile.GFile(vocab_file, "r") as reader:
-        while True:
-            token = convert_to_unicode(reader.readline())
-            if not token:
-                break
-            token = token.strip()
-            vocab[token] = index
-            index += 1
-    return vocab
-
-
 def _is_whitespace(char):
     """Checks whether `chars` is a whitespace character."""
     # \t, \n, and \r are technically contorl characters but we treat them
@@ -311,7 +297,7 @@ def _is_punctuation(char):
     # Characters such as "^", "$", and "`" are not in the Unicode
     # Punctuation class but we treat them as punctuation anyways, for
     # consistency.
-    if ((cp >= 33 and cp <= 47) or (cp >= 58 and cp <= 64) or
+    if ((33 <= cp <= 47) or (cp >= 58 and cp <= 64) or
             (cp >= 91 and cp <= 96) or (cp >= 123 and cp <= 126)):
         return True
     cat = unicodedata.category(char)

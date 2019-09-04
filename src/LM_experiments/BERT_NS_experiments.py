@@ -84,6 +84,7 @@ def run_bert_ns(data, year, predictions_dict):
                     print('BLANK')
                     predictions_dict[year][doc_id][peer_id]['BERT_NS'] = vocab_size
 
+    # Saves the predictions on prediction_dict that holds all the predictions of the experiments
     predictions_path = os.path.join(OUTPUT_DIR, 'predictions of models.json')
     with open(predictions_path, 'w') as of:
         json.dump(obj=predictions_dict, fp=of, sort_keys=True, indent=4)

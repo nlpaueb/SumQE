@@ -9,9 +9,9 @@ from keras.optimizers import Adam
 from keras.regularizers import l2
 
 
-from .masking import Camouflage, SymmetricMasking
-from .attension import Attention
-from .dropout import TimestepDropout
+from src.BiGRU_experiments.masking import Camouflage, SymmetricMasking
+from src.BiGRU_experiments.attension import Attention
+from src.BiGRU_experiments.dropout import TimestepDropout
 
 from input import INPUT_DIR
 
@@ -31,11 +31,12 @@ def pretrained_embedding():
 def compile_bigrus_attention(shape, n_hidden_layers, hidden_units_size, dropout_rate, word_dropout_rate, lr, mode):
     """
     Compiles a Hierarchical RNN based on the given parameters
+    :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     :param shape: The input shape
     :param n_hidden_layers: How many stacked Layers you want.
     :param hidden_units_size: size of hidden units, as a list
     :param dropout_rate: The percentage of inputs to dropout
-    :param word_dropout_rate: The percentage of timesteps to dropout
+    :param word_dropout_rate: The percentage of time steps to dropout
     :param lr: learning rate
     :return: Nothing
     """

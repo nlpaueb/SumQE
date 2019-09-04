@@ -6,28 +6,52 @@ from keras.callbacks import EarlyStopping
 from keras.models import load_model
 from scipy.stats import pearsonr, spearmanr, kendalltau
 
-from .masking import Camouflage, SymmetricMasking
-from .attension import Attention
-from .dropout import TimestepDropout
+from src.BiGRU_experiments.masking import Camouflage, SymmetricMasking
+from src.BiGRU_experiments.attension import Attention
+from src.BiGRU_experiments.dropout import TimestepDropout
 
 from src.BiGRU_experiments.BiGRU_model import compile_bigrus_attention
 from configuration import CONFIG_DIR
 from trained_models import MODELS_DIR
 from input import INPUT_DIR
 
+CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.json')
 
-def train(train_path, path_to_save, mode):
+
+def train(train_path, human_metric, path_to_save, mode):
+    """
+    Train the BiGRU model
+    :param train_path: Path to the train data in order to load them.
+    :param human_metric: The metric for which the model is trained. It is needed only on 'Single Task' mode.
+    :param path_to_save: The path where we will save the model.
+    :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
+    """
 
     train_data = np.load(train_path)
 
-    train_inputs = train_data.item().get('input_ids')
+    train_inputs = train_data.item().get('train_input')
+    val_inputs = train_data.item().get('val_input')
 
-    q1 = train_data.item().get('Q1').reshape(-1, 1)
-    q2 = train_data.item().get('Q2').reshape(-1, 1)
-    q3 = train_data.item().get('Q3').reshape(-1, 1)
-    q4 = train_data.item().get('Q4').reshape(-1, 1)
-    q5 = train_data.item().get('Q5').reshape(-1, 1)
-    train_human_metric = np.concatenate((q1, q2, q3, q4, q5), axis=1)
+    train_human_metric, val_human_metric = None, None
+
+    if mode == 'Single Task':
+        train_human_metric = train_data.item().get('train_'+human_metric)
+        val_human_metric = train_data.item().get('val_' + human_metric)
+
+    elif mode == 'Multi Task-1' or mode == 'Multi Task-5':
+        train_q1 = train_data.item().get('train_Q1').reshape(-1, 1)
+        train_q2 = train_data.item().get('train_Q2').reshape(-1, 1)
+        train_q3 = train_data.item().get('train_Q3').reshape(-1, 1)
+        train_q4 = train_data.item().get('train_Q4').reshape(-1, 1)
+        train_q5 = train_data.item().get('train_Q5').reshape(-1, 1)
+        train_human_metric = np.concatenate((train_q1, train_q2, train_q3, train_q4, train_q5), axis=1)
+
+        val_q1 = train_data.item().get('val_Q1').reshape(-1, 1)
+        val_q2 = train_data.item().get('val_Q2').reshape(-1, 1)
+        val_q3 = train_data.item().get('val_Q3').reshape(-1, 1)
+        val_q4 = train_data.item().get('val_Q4').reshape(-1, 1)
+        val_q5 = train_data.item().get('val_Q5').reshape(-1, 1)
+        val_human_metric = np.concatenate((val_q1, val_q2, val_q3, val_q4, val_q5), axis=1)
 
     model = compile_bigrus_attention(
         shape=(300, 300),
@@ -41,8 +65,8 @@ def train(train_path, path_to_save, mode):
 
     early = EarlyStopping(monitor='val_loss', patience=10, verbose=1, baseline=None, restore_best_weights=False)
 
-    model.fit(train_inputs, train_human_metric, batch_size=64, epochs=50, validation_split=0.1, callbacks=[early],
-              shuffle=True)
+    model.fit(train_inputs, train_human_metric,
+              validation_data=(val_inputs, val_human_metric), epochs=50, batch_size=1, callbacks=[early], shuffle=True)
 
     model.save(path_to_save)
 

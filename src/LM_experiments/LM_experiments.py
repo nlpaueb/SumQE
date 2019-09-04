@@ -28,13 +28,13 @@ def run_lm(data, year, model_name, predictions_dict):
     """
 
     model, tokenizer, vocab_size = None, None, None
-    if model_name == 'GPT2':
-        tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+    if model_name == 'GPT2_LM':
+        tokenizer = GPT2Tokenizer.from_pretrained('gpt2_LM')
         vocab_size = len(tokenizer.encoder)
 
-        model = GPT2LMHeadModel.from_pretrained('gpt2')
+        model = GPT2LMHeadModel.from_pretrained('gpt2_LM')
 
-    elif model_name == 'BERT':
+    elif model_name == 'BERT_LM':
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
         vocab_size = len(tokenizer.vocab)
 
@@ -63,10 +63,10 @@ def run_lm(data, year, model_name, predictions_dict):
                 continue
 
             indexed_summary = None
-            if model_name == 'GPT2':
+            if model_name == 'GPT2_LM':
                 indexed_summary = tokenizer.encode(summary)
 
-            elif model_name == 'BERT':
+            elif model_name == 'BERT_LM':
                 # BERT can handle max 512 bpes
                 tokenized_summary = tokenizer.tokenize(summary)[:512]
                 indexed_summary = tokenizer.convert_tokens_to_ids(tokenized_summary)
@@ -77,10 +77,10 @@ def run_lm(data, year, model_name, predictions_dict):
 
             with torch.no_grad():
                 if summary != '':
-                    if model_name == 'GPT2':
+                    if model_name == 'GPT2_LM':
                         predictions, past = model(tokens_tensor)  # GPT returns the present
 
-                    elif model_name == 'BERT':
+                    elif model_name == 'BERT_LM':
                         predictions = model(tokens_tensor)  # BERT returns only the predictions
 
                     probability_distribution = []
@@ -90,11 +90,11 @@ def run_lm(data, year, model_name, predictions_dict):
                         # Normalize the predictions of LM_experiments by passing them through the softmax
                         soft_predictions = soft_max(predictions[0, i, :]).reshape(vocab_size)
 
-                        if model_name == 'GPT2':
+                        if model_name == 'GPT2_LM':
                             # GPT -> probabilities (predictions) corresponds to the next word
                             p = soft_predictions[tokens_tensor[0, i + 1]].item()
 
-                        elif model_name == 'BERT':
+                        elif model_name == 'BERT_LM':
                             # BERT -> probabilities (predictions) corresponds to this word which is masked
                             p = soft_predictions[tokens_tensor[0, i]].item()
 
@@ -110,7 +110,10 @@ def run_lm(data, year, model_name, predictions_dict):
                     for j in range(MAX_BPES_TO_SEARCH):
                         each_case_k_predictions[j][doc_id].update({peer_id: vocab_size})
 
-    compute_correlations_of_each_k(data=data, predictions=each_case_k_predictions, model_name=model_name, year=year)
+    k = compute_correlations_of_each_k(data=data, predictions=each_case_k_predictions, model_name=model_name, year=year)
+
+    return save_the_best_predictions(best_predictions=each_case_k_predictions[k-1], predictions_dict=predictions_dict,
+                                     year=year, model_name=model_name)
 
 
 def not_valid(peer_id, doc_id):
@@ -153,7 +156,7 @@ def compute_correlations_of_each_k(data, predictions, model_name, year):
     :param predictions: A dict where the predictions from our experiments are saved
     :param model_name: Name of LM_experiments we used (BERT or GPT2). It is used on the output file name
     :param year: The corresponding year of the data
-    :return: The k which achieved the best (spearman) correlations
+    :return: The best k (combination of k-worst bpes) which achieved the best spearman correlations
     """
     system_ids = {peer_id for doc in data.values() for peer_id, peer in doc['peer_summarizers'].items()}
 
@@ -201,9 +204,11 @@ def compute_correlations_of_each_k(data, predictions, model_name, year):
     # Visualize the correlations of each k-worst bpes perplexity and actual-scores
     visualize_correlation_metrics(spearman, kendall, pearson, model_name, year)
 
+    # Compute and return the best k by spearman
     spearman_max = max(spearman)
-    best_k = spearman.index(spearman_max)
-    print('TRAIN best_k: {}'.format(best_k))
+    best_k = spearman.index(spearman_max) + 1
+
+    return best_k
 
 
 def visualize_correlation_metrics(spearman_scores, kendall_scores, pearson_scores, model_name, year):
@@ -221,7 +226,6 @@ def visualize_correlation_metrics(spearman_scores, kendall_scores, pearson_score
     y_max = max(spearman_scores)
     x_pos = spearman_scores.index(y_max)
     x_max = x_ticks[x_pos]
-    print('VISUALIZE x_pos: {}  x_max: {}'.format(x_pos, x_max))
 
     plt.subplot(1, 3, 1)
     plt.plot(x_ticks, spearman_scores, 'bo')
@@ -252,3 +256,24 @@ def visualize_correlation_metrics(spearman_scores, kendall_scores, pearson_score
     path_to_save = os.path.join(OUTPUT_DIR, 'Q1 - {0:s}  {1:s}.png'.format(model_name, year))
     plt.savefig(path_to_save)
     plt.show()
+
+
+def save_the_best_predictions(best_predictions, predictions_dict, year, model_name):
+    """
+    Saves the best predictions-perplexities on prediction dict that holds all the predictions of the experiments
+    :param best_predictions: Dictionary that contains the best perplexities of (doc_id - peer_id)
+    :param predictions_dict: The predictions that has already been saved from other experiments.
+    :param year: The corresponding year that we are testing
+    :param model_name: The name of the model we used [GPT2, BERT]
+    :return: The updated predictions dict
+    """
+
+    for doc_id, doc in best_predictions.items():
+        for peer_id, peer_score in doc.items():
+            predictions_dict[year][doc_id][peer_id][model_name] = peer_score
+
+    predictions_path = os.path.join(OUTPUT_DIR, 'predictions of models.json')
+    with open(predictions_path, 'w') as of:
+        json.dump(obj=predictions_dict, fp=of, sort_keys=True, indent=4)
+
+    return predictions_dict

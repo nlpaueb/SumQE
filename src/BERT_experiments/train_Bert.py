@@ -2,14 +2,19 @@ import json
 import numpy as np
 import os
 
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 from keras.callbacks import EarlyStopping
 from keras.models import load_model
 from scipy.stats import pearsonr, spearmanr, kendalltau
 
 from src.BERT_experiments.Bert_model import BERT, compile_bert
-from src.main import CONFIG_PATH
+from configuration import CONFIG_DIR
 from trained_models import MODELS_DIR
 from input import INPUT_DIR
+
+CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.json')
 
 
 def train(train_path, human_metric, mode, path_to_save):

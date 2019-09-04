@@ -73,7 +73,7 @@ def save_train_test_inputs(input_dict, test_year):
     for name, input_values in train_dict.items():
         train_dict[name] = np.array(input_values)
 
-    np.save(file=os.path.join(INPUT_DIR, 'BiGRU_Train_{}.npy'.format(test_year)), arr=input_dict)
+    np.save(file=os.path.join(INPUT_DIR, 'BiGRU_Train_{}.npy'.format(test_year)), arr=train_dict)
 
 
 def fill_the_dictionaries(data, black_list, constant):

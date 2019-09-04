@@ -1,6 +1,6 @@
 {
   "read_data": {
-    "years_to_read": ["2005"]
+    "years_to_read": ["2005", "2006", "2007"]
   },
 
   "hyper_optimization":{
