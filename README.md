@@ -11,6 +11,7 @@ This is the source code for SUM-QE, a BERT-based Summary Quality Estimation Mode
                    booktitle     = {EMNLP-IJCNLP 2019},
                    year          = {2019},
                    address       = {Hong Kong}
+                   }
 
 A preprint of the paper is available on [arXiv](https://arxiv.org/abs/1909.00578).
 
