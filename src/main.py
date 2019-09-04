@@ -13,6 +13,10 @@ from experiments_output import OUTPUT_DIR
 
 CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.json')
 
+GPT2 = True
+BERT_LM = True
+BERT_NS = True
+
 
 def make_predictions_structure(years):
     """
@@ -44,11 +48,11 @@ def make_predictions_structure(years):
 def compute_correlations(year, predictions, data, human_metrics, auto_metric):
     """
     Computes and prints the correlation between an auto_metric with some human_metrics
-    :param year:
-    :param predictions:
-    :param data:
-    :param human_metrics:
-    :param auto_metric:
+    :param year: The year we are testing
+    :param predictions: The predictions of the model
+    :param data: The data of the yar
+    :param human_metrics: The human metrics that we want to compute the correlations with auto_metric
+    :param auto_metric: The auto metric that we want to compute the correlations with human_metrics
     :return:
     """
 
@@ -77,7 +81,6 @@ def compute_correlations(year, predictions, data, human_metrics, auto_metric):
             kendalltau(human_aggregation_table[:, i], -predictions_aggregation_table)[0],
             pearsonr(human_aggregation_table[:, i], -predictions_aggregation_table)[0]
         ))
-    print()
 
 
 def main():
@@ -91,17 +94,23 @@ def main():
         dataset_path = os.path.join(DATASETS_DIR, 'duc_{}.json'.format(year))
         data = json.load(open(dataset_path))
 
-        print('=== BERT Next Sentence Started ===')
-        predictions = run_bert_ns(data=data, year=year, predictions_dict=predictions)
-        compute_correlations(year=year, predictions=predictions, data=data, human_metrics=['Q3', 'Q4', 'Q5'], auto_metric='BERT_NS')
+        if BERT_NS:
+            print('=== BERT Next Sentence Started ===')
+            predictions = run_bert_ns(data=data, year=year, predictions_dict=predictions)
+            compute_correlations(year=year, predictions=predictions, data=data,
+                                 human_metrics=['Q3', 'Q4', 'Q5'], auto_metric='BERT_NS')
 
-        print('=== BERT LM_experiments Started ===')
-        predictions = run_lm(data=data, year=year, model_name='BERT_LM', predictions_dict=predictions)
-        compute_correlations(year=year, predictions=predictions, data=data, human_metrics=['Q1'], auto_metric='BERT_LM')
+        if BERT_LM:
+            print('=== BERT LM_experiments Started ===')
+            predictions = run_lm(data=data, year=year, model_name='BERT_LM', predictions_dict=predictions)
+            compute_correlations(year=year, predictions=predictions, data=data,
+                                 human_metrics=['Q1'], auto_metric='BERT_LM')
 
-        print('=== GPT2 LM_experiments Started ===')
-        predictions = run_lm(data=data, year=year, model_name='GPT2_LM', predictions_dict=predictions)
-        compute_correlations(year=year, predictions=predictions, data=data, human_metrics=['Q1'], auto_metric='GPT2')
+        if GPT2:
+            print('=== GPT2 LM_experiments Started ===')
+            predictions = run_lm(data=data, year=year, model_name='GPT2_LM', predictions_dict=predictions)
+            compute_correlations(year=year, predictions=predictions, data=data,
+                                 human_metrics=['Q1'], auto_metric='GPT2')
 
 
 if __name__ == '__main__':
