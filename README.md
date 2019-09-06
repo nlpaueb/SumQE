@@ -130,6 +130,6 @@ In order to train the model, firstly you have to vectorize your summaries and to
 
         python train_Bert.py
 
-    This will train your model with all the different flavors described in the paper [Single Task, Multi-Task-1, Multi-Tasnk-5] and it will prin you the correlation of each one.
+    This will train your model with all the different flavors described in the paper [Single Task, Multi-Task-1, Multi-Task-5] and it will print you the correlation of each one.
 
 5. Package ``BiGRU_experiments``. (Under construction)
