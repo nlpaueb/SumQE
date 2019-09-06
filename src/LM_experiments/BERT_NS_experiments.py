@@ -138,22 +138,3 @@ def convert_sentences(sentences, tokenizer):
         sentences_ids.append(tokenizer.convert_tokens_to_ids(sentences[i]))
 
     return sentences_ids
-
-
-# def main():
-#     """
-#     Reads the configuration file, the corresponding dataset files and execute the experiments
-#     """
-#
-#     with open(CONFIG_PATH) as fin:
-#         config = json.load(fin)
-#         years = config['read_data']['years_to_read']
-#
-#     for year in years:
-#         dataset_path = os.path.join(DATASETS_DIR, 'duc_{}.json'.format(year))
-#         data = json.load(open(dataset_path))
-#         run_bert_ns(data=data, year=year, predictions_dict=None)
-#
-#
-# if __name__ == '__main__':
-#     main()

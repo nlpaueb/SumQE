@@ -24,7 +24,7 @@ def run_lm(data, year, model_name, predictions_dict):
     :param year: The corresponding year of the data. It is used when we save the predictions
     :param model_name: Name of LM_experiments we used (BERT or GPT2). It is used on the output file name
     :param predictions_dict: A dict where we save the predictions from our experiments
-    :return:
+    :return: The updated prediction_dict
     """
 
     model, tokenizer, vocab_size = None, None, None

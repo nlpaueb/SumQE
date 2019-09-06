@@ -2,9 +2,6 @@ import json
 import numpy as np
 import os
 
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-
 from keras.callbacks import EarlyStopping
 from keras.models import load_model
 from scipy.stats import pearsonr, spearmanr, kendalltau
@@ -21,7 +18,7 @@ def train(train_path, human_metric, mode, path_to_save):
     """
     Train the Bert Model.
     :param train_path: Path to the train data in order to load them.
-    :param human_metric: The metric for which the model is trained. It is needed only on 'Single Task' mode.
+    :param human_metric: The metric for which the model will be trained at. It is needed only on 'Single Task' mode.
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     :param path_to_save: The path where we will save the model.
     :return: The trained model.
@@ -69,12 +66,12 @@ def evaluate(model_path, test_path):
 
     model = load_model(model_path, custom_objects={'BERT': BERT})
 
-    test_data = np.load(test_path)
+    test_data = np.load(test_path).item()
 
     test_input_dict = {
-        'word_inputs': test_data.item().get('word_inputs'),
-        'pos_inputs': test_data.item().get('pos_inputs'),
-        'seg_inputs': test_data.item().get('seg_inputs')
+        'word_inputs': test_data['word_inputs'],
+        'pos_inputs': test_data['pos_inputs'],
+        'seg_inputs': test_data['seg_inputs']
     }
 
     prediction = model.predict(test_input_dict, batch_size=1)
@@ -91,22 +88,22 @@ def compute_correlations(test_path, predictions, human_metric, mode):
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     """
 
-    test_data = np.load(test_path)
+    test_data = np.load(test_path).item()
 
-    ordered_ids = test_data.item().get('peer_ids')
+    ordered_ids = test_data['peer_ids']
     system_ids = {i for i in ordered_ids}
-    empty_ids = test_data.item().get('empty_ids')
+    empty_ids = test_data['empty_ids']
 
     if mode == 'Single Task':
-        test_human_metric = test_data.item().get(human_metric)
+        test_human_metric = test_data[human_metric]
 
     elif mode == 'Multi Task-1' or mode == 'Multi Task-5':
         test_human_metric = {
-            'Q1': test_data.item().get('Q1'),
-            'Q2': test_data.item().get('Q2'),
-            'Q3': test_data.item().get('Q3'),
-            'Q4': test_data.item().get('Q4'),
-            'Q5': test_data.item().get('Q5')
+            'Q1': test_data['Q1'],
+            'Q2': test_data['Q2'],
+            'Q3': test_data['Q3'],
+            'Q4': test_data['Q4'],
+            'Q5': test_data['Q5']
         }
 
     # Concatenate the output in order to have a similar structure of predictions as 'Multi-Task1'

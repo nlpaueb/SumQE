@@ -51,12 +51,12 @@ class BERT(Layer):
 
 def compile_bert(shape, dropout_rate, lr, mode):
     """
-    Using the above class, creates,  compiles the and return on user the BERT model
-    :param shape: The Input shape
-    :param dropout_rate: The dropout rate of the model
-    :param lr: The learning rate of the model
+    Using the above class, creates, compiles the and returns the BERT model ready to be trained
+    :param shape: The Input shape (We used 512 as the max bpes that can be fit).
+    :param dropout_rate: The dropout rate of the model.
+    :param lr: The learning rate of the model.
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
-    :return: The compiler model ready to be used
+    :return: The compiler model ready to be used.
     """
     random.seed(11)
     np.random.seed(13)

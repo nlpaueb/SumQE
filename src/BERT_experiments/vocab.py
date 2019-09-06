@@ -17,7 +17,7 @@ class TextEncoder:
     def __len__(self) -> int:
         return self.vocab_size
 
-    def encode(self, sent: str) -> List[int]:
+    def encode(self, sent: str, i: int) -> List[int]:
         raise NotImplementedError()
 
 
@@ -33,6 +33,9 @@ class BERTTextEncoder(TextEncoder):
 
     def encode(self, sent: str, i: int) -> List[int]:
         if i == 0:
-            return [self.bert_cls_id] + self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(sent))[:self.max_len - 2] + [self.bert_sep_id]
+            return [self.bert_cls_id] + \
+                   self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(sent))[:self.max_len - 2] + \
+                   [self.bert_sep_id]
         else:
-            return self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(sent))[:self.max_len - 1] + [self.bert_sep_id]
+            return self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(sent))[:self.max_len - 1] + \
+                   [self.bert_sep_id]

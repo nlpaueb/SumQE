@@ -19,9 +19,13 @@ EMBEDDINGS_PATH = os.path.join(INPUT_DIR, 'glove-wiki-gigaword-200.bin')
 
 
 def pretrained_embedding():
+    """
+    :return: A Model with an embeddings layer
+    """
     inputs = Input(shape=(None,), dtype='int32')
     embeddings = KeyedVectors.load_word2vec_format(EMBEDDINGS_PATH, binary=True)
-    word_encodings_weights = np.concatenate((np.zeros((1, embeddings.syn0.shape[-1]), dtype=np.float32), embeddings.syn0), axis=0)
+    word_encodings_weights = np.concatenate((np.zeros((1, embeddings.syn0.shape[-1]), dtype=np.float32),
+                                             embeddings.syn0), axis=0)
     embeds = Embedding(len(word_encodings_weights), word_encodings_weights.shape[-1],
                        weights=[word_encodings_weights], trainable=False)(inputs)
 
@@ -38,17 +42,17 @@ def compile_bigrus_attention(shape, n_hidden_layers, hidden_units_size, dropout_
     :param dropout_rate: The percentage of inputs to dropout
     :param word_dropout_rate: The percentage of time steps to dropout
     :param lr: learning rate
-    :return: Nothing
+    :return: The compiled model ready to be trained
     """
 
     # Document Feature Representation
     doc_inputs = Input(shape=(shape[1],), name='doc_inputs')
     pretrained_encodings = pretrained_embedding()
-    doc_embs = pretrained_encodings(doc_inputs)
+    doc_embeddings = pretrained_encodings(doc_inputs)
 
     # Apply variational dropout
-    drop_doc_embs = SpatialDropout1D(dropout_rate, name='feature_dropout')(doc_embs)
-    encodings = TimestepDropout(word_dropout_rate, name='word_dropout')(drop_doc_embs)
+    drop_doc_embeddings = SpatialDropout1D(dropout_rate, name='feature_dropout')(doc_embeddings)
+    encodings = TimestepDropout(word_dropout_rate, name='word_dropout')(drop_doc_embeddings)
 
     # Bi-GRUs over token embeddings
     for i in range(n_hidden_layers):

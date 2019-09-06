@@ -27,7 +27,6 @@ def hyper_optimization(year, mode, human_metric):
     :param year: The year we are testing.
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     :param human_metric: The metric for which the model is trained. It is needed only on 'Single Task' mode.
-    :return:
     """
     search_space = json.load(open(CONFIG_PATH))['hyper_optimization']['search_space']
 
@@ -221,6 +220,7 @@ def optimization_function(network, train_samples, test_samples, val_samples, cur
                                                       true_samples=val_samples['x'],
                                                       true_targets=val_samples['y'],
                                                       ordered_ids=val_samples['ordered_ids'],
+                                                      empty_ids=[],
                                                       mode=mode,
                                                       human_metric=metric)
 
@@ -266,7 +266,7 @@ def optimization_function(network, train_samples, test_samples, val_samples, cur
     }
 
 
-def calculate_performance(network, true_samples, true_targets, ordered_ids, mode, human_metric, empty_ids=[]):
+def calculate_performance(network, true_samples, true_targets, ordered_ids, mode, human_metric, empty_ids):
     """
     Using the trained network, calculates the predictions and the correlations between predictions and human_scores
     :param network: The trained model.
@@ -278,7 +278,7 @@ def calculate_performance(network, true_samples, true_targets, ordered_ids, mode
     :param empty_ids: List with the peer_ids which the summary they sent was empty
     :return:
     """
-    predictions = network.predict(true_samples, batch_size=configuration['model']['batch_size'])
+    predictions = network.predict(true_samples, batch_size=1)
 
     report_statistics = {}
 
@@ -424,3 +424,18 @@ def setup_logger(logger_name, log_path, level=logging.INFO):
     logger.setLevel(level)
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
+
+
+def main():
+    config = json.load(open(CONFIG_PATH))
+    years = config['read_data']['years_to_read']
+
+    for y in years:
+        for mode in ['Single Task', 'Multi Task-1', 'Multi Task-5']:
+            for metric in ['Q1', 'Q2', 'Q3', 'Q4', 'Q5']:
+                print('-------------------------------{}_{}_{}-------------------------------'.format(y, mode, metric))
+                hyper_optimization(year=y, mode=mode, human_metric=metric)
+
+
+if __name__ == '__main__':
+    main()

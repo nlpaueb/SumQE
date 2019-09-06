@@ -27,30 +27,33 @@ def train(train_path, human_metric, path_to_save, mode):
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     """
 
-    train_data = np.load(train_path)
+    train_data = np.load(train_path).item()
 
-    train_inputs = train_data.item().get('train_input')
-    val_inputs = train_data.item().get('val_input')
+    old_data = np.load(os.path.join(INPUT_DIR, 'BiGRU_Input_2005.npy'))
+    old_train = old_data.item()['train_input']
+
+    train_inputs = train_data['train_input']
+    val_inputs = train_data['val_input']
 
     train_human_metric, val_human_metric = None, None
 
     if mode == 'Single Task':
-        train_human_metric = train_data.item().get('train_'+human_metric)
-        val_human_metric = train_data.item().get('val_' + human_metric)
+        train_human_metric = train_data['train_'+human_metric]
+        val_human_metric = train_data['val_' + human_metric]
 
     elif mode == 'Multi Task-1' or mode == 'Multi Task-5':
-        train_q1 = train_data.item().get('train_Q1').reshape(-1, 1)
-        train_q2 = train_data.item().get('train_Q2').reshape(-1, 1)
-        train_q3 = train_data.item().get('train_Q3').reshape(-1, 1)
-        train_q4 = train_data.item().get('train_Q4').reshape(-1, 1)
-        train_q5 = train_data.item().get('train_Q5').reshape(-1, 1)
+        train_q1 = train_data['train_Q1'].reshape(-1, 1)
+        train_q2 = train_data['train_Q2'].reshape(-1, 1)
+        train_q3 = train_data['train_Q3'].reshape(-1, 1)
+        train_q4 = train_data['train_Q4'].reshape(-1, 1)
+        train_q5 = train_data['train_Q5'].reshape(-1, 1)
         train_human_metric = np.concatenate((train_q1, train_q2, train_q3, train_q4, train_q5), axis=1)
 
-        val_q1 = train_data.item().get('val_Q1').reshape(-1, 1)
-        val_q2 = train_data.item().get('val_Q2').reshape(-1, 1)
-        val_q3 = train_data.item().get('val_Q3').reshape(-1, 1)
-        val_q4 = train_data.item().get('val_Q4').reshape(-1, 1)
-        val_q5 = train_data.item().get('val_Q5').reshape(-1, 1)
+        val_q1 = train_data['val_Q1'].reshape(-1, 1)
+        val_q2 = train_data['val_Q2'].reshape(-1, 1)
+        val_q3 = train_data['val_Q3'].reshape(-1, 1)
+        val_q4 = train_data['val_Q4'].reshape(-1, 1)
+        val_q5 = train_data['val_Q5'].reshape(-1, 1)
         val_human_metric = np.concatenate((val_q1, val_q2, val_q3, val_q4, val_q5), axis=1)
 
     model = compile_bigrus_attention(
@@ -86,7 +89,7 @@ def evaluate(model_path, test_path):
 
     test_data = np.load(test_path)
 
-    test_inputs = test_data.item().get('input_ids')
+    test_inputs = test_data.item()['input_ids']
 
     prediction = model.predict(test_inputs, batch_size=1)
 
@@ -102,26 +105,37 @@ def compute_correlations(test_path, predictions, human_metric, mode):
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     """
 
-    test_data = np.load(test_path)
+    test_data = np.load(test_path).item()
 
-    ordered_ids = test_data.item().get('s_ids')
+    ordered_ids = test_data['s_ids']
     system_ids = {i for i in ordered_ids}
-    empty_ids = test_data.item().get('empty_ids')
+    empty_ids = test_data['empty_ids']
 
-    test_human_metric = {
-        'Q1': test_data.item().get('Q1'),
-        'Q2': test_data.item().get('Q2'),
-        'Q3': test_data.item().get('Q3'),
-        'Q4': test_data.item().get('Q4'),
-        'Q5': test_data.item().get('Q5')
-    }
+    if mode == 'Single Task':
+        test_human_metric = test_data[human_metric]
+
+    elif mode == 'Multi Task-1' or mode == 'Multi Task-5':
+        test_human_metric = {
+            'Q1': test_data['Q1'],
+            'Q2': test_data['Q2'],
+            'Q3': test_data['Q3'],
+            'Q4': test_data['Q4'],
+            'Q5': test_data['Q5']
+        }
+
+    # Concatenate the output in order to have a similar structure of predictions as 'Multi-Task-1'
+    if mode == 'Multi Task-5':
+        predictions = np.concatenate(predictions, axis=1)
 
     for k in range(predictions.shape[1]):
         output_aggregation_table = np.zeros([len(system_ids)])
         human_aggregation_table = np.zeros([len(system_ids)])
 
-        predictions_of_metric = predictions[:, k]
-        metric_real = test_human_metric['Q' + str(k + 1)]
+        # Choose only Q_k to compute the correlation.
+        # At single task, we have only one dimension on predictions
+        if mode == 'Multi Task-1' or mode == 'Multi Task-5':
+            predictions_of_metric = predictions[:, k]
+            metric_real = test_human_metric['Q' + str(k + 1)]
 
         for i, s_id in enumerate(system_ids):
             id_predictions = []
@@ -129,8 +143,14 @@ def compute_correlations(test_path, predictions, human_metric, mode):
 
             for j, o_id in enumerate(ordered_ids):
                 if s_id == o_id:
-                    id_predictions.append(predictions_of_metric[j])
-                    id_human_scores.append(metric_real[j])
+
+                    if mode == 'Single Task':
+                        id_predictions.append(predictions[j])
+                        id_human_scores.append(test_human_metric[j])
+
+                    elif mode == 'Multi Task-1' or mode == 'Multi Task-5':
+                        id_predictions.append(predictions_of_metric[j])
+                        id_human_scores.append(metric_real[j])
 
             # Empty ids is a list with the peer_ids which the summary they sent was empty.
             # Each position corresponds to a doc_id-peer_id. if the system had sent more
@@ -167,7 +187,7 @@ def main():
 
             if mode == 'Single Task':
                 for metric in ['Q1', 'Q2', 'Q3', 'Q4', 'Q5']:
-                    model_path = os.path.join(MODELS_DIR, 'BERT_{}_{}_{}_{}.h5'.format('2e-5', y, metric, mode))
+                    model_path = os.path.join(MODELS_DIR, 'BiGRU_{}_{}_{}.h5'.format(y, metric, mode))
 
                     train(train_path=train_data_path, human_metric=metric, mode=mode, path_to_save=model_path)
 
@@ -178,7 +198,7 @@ def main():
 
             elif mode == 'Multi Task-1' or mode == 'Multi Task-5':
 
-                model_path = os.path.join(MODELS_DIR, 'BERT_{}_{}_{}.h5'.format('2e-5', y, mode))
+                model_path = os.path.join(MODELS_DIR, 'BiGRU_{}_{}.h5'.format(y, mode))
 
                 train(train_path=train_data_path, human_metric=None, mode=mode, path_to_save=model_path)
 

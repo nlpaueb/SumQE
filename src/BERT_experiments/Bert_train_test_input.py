@@ -16,10 +16,11 @@ VOCAB_PATH = os.path.join(INPUT_DIR, 'vocab.txt')
 
 def save_train_inputs(years_to_train, year_to_test):
     """
-    We used all the remaining year in order to train the model and evaluate at test_year
-    :param years_to_train: List of years that are used on training process
-    :param year_to_test: The corresponding year that we want to evaluate the model.
-    It is used only on the output file name.
+    Saves the data that will be used on the training of the model when we want to evaluate it on test_year.
+    We used all the remaining years in order to train the model in order to evaluate on test_year's data which are
+    never 'seen' by the model.
+    :param years_to_train: List of years that are used on the training process.
+    :param year_to_test: The year that we want to evaluate the model. It is used only on output file name.
     """
 
     train_data = {}
@@ -50,9 +51,8 @@ def save_train_inputs(years_to_train, year_to_test):
 
 def save_test_inputs(year_to_test):
     """
-
-    :param year_to_test:
-    :return:
+    Saves the data that will be used on the evaluation of the year=yer_to_test
+    :param year_to_test: The year that we want to evaluate the model at.
     """
 
     test_data_path = os.path.join(DATASETS_DIR, 'duc_{}.json'.format(year_to_test))
@@ -83,11 +83,11 @@ def save_test_inputs(year_to_test):
 
 def fill_input_dict(data, input_dict, mode):
     """
-
-    :param data:
-    :param input_dict:
-    :param mode:
-    :return:
+    It fills a given structure (input_dict) with the 'data' depending on the process (train or test) to be used .
+    :param data: The data we want to be included on the input_dict.
+    :param input_dict: The structure with the data that we want to feed on the model
+    :param mode: ['train', or 'test'] depending the process that input_dict will be used.
+    :return: The updated input_dict including the new data.
     """
 
     vectorizer = BERTVectorizer()

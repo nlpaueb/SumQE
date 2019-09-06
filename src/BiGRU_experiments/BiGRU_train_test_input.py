@@ -18,8 +18,8 @@ def save_train_test_inputs(input_dict, test_year):
     """
     Saves the train and test input of the test_year.
     **Construct the test_data by concatenating train+val of the test year**
-    :param input_dict: The data from all the years.
-    :param test_year: The year that we want to test on it
+    :param input_dict: The dictionary which contains the data from all the years structured.
+    :param test_year: The year that we want to evaluate the model at.
     """
 
     test_dict = {
@@ -36,38 +36,27 @@ def save_train_test_inputs(input_dict, test_year):
     np.save(file=os.path.join(INPUT_DIR, 'BiGRU_Test_{}.npy'.format(test_year)), arr=test_dict)
 
     train_dict = {
-        'train_Q1': [],
-        'train_Q2': [],
-        'train_Q3': [],
-        'train_Q4': [],
-        'train_Q5': [],
-        'train_input': [],
-        'val_Q1': [],
-        'val_Q2': [],
-        'val_Q3': [],
-        'val_Q4': [],
-        'val_Q5': [],
-        'val_input': [],
-        'val_ids': [],
+        'train_Q1': [], 'train_Q2': [], 'train_Q3': [], 'train_Q4': [], 'train_Q5': [], 'train_input': [],
+        'val_Q1': [], 'val_Q2': [], 'val_Q3': [], 'val_Q4': [], 'val_Q5': [], 'val_input': [], 'val_ids': [],
         'empty_ids': []
     }
 
     for year, data in input_dict.items():
         if year != test_year:
-            train_dict['train_Q1'] = list(train_dict['train_Q1']) + input_dict[year]['train_Q1'],
-            train_dict['train_Q2'] = list(train_dict['train_Q2']) + input_dict[year]['train_Q2'],
-            train_dict['train_Q3'] = list(train_dict['train_Q3']) + input_dict[year]['train_Q3'],
-            train_dict['train_Q4'] = list(train_dict['train_Q4']) + input_dict[year]['train_Q4'],
-            train_dict['train_Q5'] = list(train_dict['train_Q5']) + input_dict[year]['train_Q5'],
-            train_dict['train_input'] = list(train_dict['train_input']) + input_dict[year]['train_input'],
-            train_dict['val_Q1'] = list(train_dict['val_Q1']) + input_dict[year]['val_Q1'],
-            train_dict['val_Q2'] = list(train_dict['val_Q2']) + input_dict[year]['val_Q2'],
-            train_dict['val_Q3'] = list(train_dict['val_Q3']) + input_dict[year]['val_Q3'],
-            train_dict['val_Q4'] = list(train_dict['val_Q4']) + input_dict[year]['val_Q4'],
-            train_dict['val_Q5'] = list(train_dict['val_Q5']) + input_dict[year]['val_Q5'],
-            train_dict['val_input'] = list(train_dict['val_input']) + input_dict[year]['val_input'],
-            train_dict['val_ids'] = list(train_dict['val_ids']) + input_dict[year]['val_ordered_ids'],
-            train_dict['empty_ids'] = train_dict['empty_ids']
+            train_dict['train_Q1'].extend(input_dict[year]['train_Q1']),
+            train_dict['train_Q2'].extend(input_dict[year]['train_Q2']),
+            train_dict['train_Q3'].extend(input_dict[year]['train_Q3']),
+            train_dict['train_Q4'].extend(input_dict[year]['train_Q4']),
+            train_dict['train_Q5'].extend(input_dict[year]['train_Q5']),
+            train_dict['train_input'].extend(input_dict[year]['train_input']),
+            train_dict['val_Q1'].extend(input_dict[year]['val_Q1']),
+            train_dict['val_Q2'].extend(input_dict[year]['val_Q2']),
+            train_dict['val_Q3'].extend(input_dict[year]['val_Q3']),
+            train_dict['val_Q4'].extend(input_dict[year]['val_Q4']),
+            train_dict['val_Q5'].extend(input_dict[year]['val_Q5']),
+            train_dict['val_input'].extend(np.array(input_dict[year]['val_input'])),
+            train_dict['val_ids'].extend(input_dict[year]['val_ordered_ids']),
+            train_dict['empty_ids'].extend(input_dict[year]['empty_ids']),
 
     # Transform it to np.arrays in order to save them with .npy format
     for name, input_values in train_dict.items():
@@ -79,8 +68,8 @@ def save_train_test_inputs(input_dict, test_year):
 def fill_the_dictionaries(data, black_list, constant):
     """
     Parse one time the data from each year and structure them in order to use them easier
-    :param data:
-    :param black_list:
+    :param data: The data of a year
+    :param black_list: Some peer_ids that we don't want to be included at the validation process
     :param constant:
     :return:
     """

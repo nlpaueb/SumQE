@@ -5,8 +5,7 @@ from keras.layers.core import Layer
 
 def dot_product(x, kernel):
     """
-    Wrapper for dot product operation, in order to be compatible with both
-    Theano and Tensorflow
+    Wrapper for dot product operation, in order to be compatible with both Theano and Tensorflow
     Args:
         x (): input
         kernel (): weights
