@@ -1,7 +1,9 @@
 import json
+import logging
 import numpy as np
 import os
 
+import keras.backend as K
 from keras.callbacks import EarlyStopping
 from keras.models import load_model
 from scipy.stats import pearsonr, spearmanr, kendalltau
@@ -12,36 +14,59 @@ from src.BiGRU_experiments.dropout import TimestepDropout
 
 from src.BiGRU_experiments.BiGRU_model import compile_bigrus_attention
 from configuration import CONFIG_DIR
+from experiments_output import OUTPUT_DIR
 from trained_models import MODELS_DIR
 from input import INPUT_DIR
 
 CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.json')
 
+SAVE_MODELS = False
 
-def train(train_path, human_metric, path_to_save, mode):
+
+def setup_logger(logger_name, log_path, level=logging.INFO):
     """
-    Train the BiGRU model
+    Setups the logger in order to write on different file on each type (mode) of model optimization.
+    :param logger_name: The name of the logger
+    :param log_path: Path to log file
+    :param level: The lo level INFO:Informational messages that might make sense to end users
+    and system administrators, and highlight the progress of the application.
+    """
+    logger = logging.getLogger(logger_name)
+    formatter = logging.Formatter('%(message)s')
+    file_handler = logging.FileHandler(log_path, mode='w')
+    file_handler.setFormatter(formatter)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+
+    logger.setLevel(level)
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
+
+
+def load_train_data(train_path, human_metric, mode):
+    """
+
     :param train_path: Path to the train data in order to load them.
     :param human_metric: The metric for which the model is trained. It is needed only on 'Single Task' mode.
-    :param path_to_save: The path where we will save the model.
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
+    :return: The corresponding numpy arrays, ready to be fed on the model
     """
 
-    train_data = np.load(train_path).item()
+    train_data = dict(np.load(train_path).item())
 
-    old_data = np.load(os.path.join(INPUT_DIR, 'BiGRU_Input_2005.npy'))
-    old_train = old_data.item()['train_input']
+    # old_data = np.load(os.path.join(INPUT_DIR, 'BiGRU_Input_2005.npy'))
+    # old_train = old_data.item()['train_input']
 
     train_inputs = train_data['train_input']
     val_inputs = train_data['val_input']
-
-    train_human_metric, val_human_metric = None, None
+    train_x = np.concatenate((train_inputs, val_inputs), axis=0)
 
     if mode == 'Single Task':
-        train_human_metric = train_data['train_'+human_metric]
+        train_human_metric = train_data['train_' + human_metric]
         val_human_metric = train_data['val_' + human_metric]
+        train_y = np.concatenate((train_human_metric, val_human_metric), axis=0)
 
-    elif mode == 'Multi Task-1' or mode == 'Multi Task-5':
+    else:
         train_q1 = train_data['train_Q1'].reshape(-1, 1)
         train_q2 = train_data['train_Q2'].reshape(-1, 1)
         train_q3 = train_data['train_Q3'].reshape(-1, 1)
@@ -56,40 +81,63 @@ def train(train_path, human_metric, path_to_save, mode):
         val_q5 = train_data['val_Q5'].reshape(-1, 1)
         val_human_metric = np.concatenate((val_q1, val_q2, val_q3, val_q4, val_q5), axis=1)
 
+        train_y = np.concatenate((train_human_metric, val_human_metric), axis=0)
+
+    return train_x, train_y
+
+
+def train(train_path, human_metric, path_to_save, mode, **params):
+    """
+    Train the BiGRU model
+    :param train_path: Path to the train data in order to load them.
+    :param human_metric: The metric for which the model is trained. It is needed only on 'Single Task' mode.
+    :param path_to_save: The path where we will save the model.
+    :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
+    :returns The trained model
+    """
+
+    K.clear_session()
+
+    train_x, train_y = load_train_data(train_path=train_path, human_metric=human_metric, mode=mode)
+
     model = compile_bigrus_attention(
-        shape=(300, 300),
-        n_hidden_layers=1,
-        hidden_units_size=128,
-        dropout_rate=0.1,
-        word_dropout_rate=0.1,
-        lr=2e-5,
+        shape=(1000, 300),
+        n_hidden_layers=params['HL'],
+        hidden_units_size=params['HU'],
+        dropout_rate=params['D'],
+        word_dropout_rate=params['WD'],
+        lr=params['LR'],
         mode=mode
     )
 
-    early = EarlyStopping(monitor='val_loss', patience=10, verbose=1, baseline=None, restore_best_weights=False)
+    early = EarlyStopping(monitor='val_loss', patience=10, baseline=None, restore_best_weights=False)
 
-    model.fit(train_inputs, train_human_metric,
-              validation_data=(val_inputs, val_human_metric), epochs=50, batch_size=1, callbacks=[early], shuffle=True)
+    model.fit(train_x, train_y, epochs=50, batch_size=params['BS'], callbacks=[early], shuffle=True)
 
-    model.save(path_to_save)
+    if SAVE_MODELS:
+        model.save(path_to_save)
+
+    return model
 
 
-def evaluate(model_path, test_path):
+def evaluate(model_path, test_path, model):
     """
     Evaluates a model and sends back the predictions.
     :param model_path: The path on the trained model.
     :param test_path: Path to the test data.
+    :param model: The trained model.
     :return: The predictions of the model.
     """
 
-    model = load_model(model_path, custom_objects={'TimestepDropout': TimestepDropout,
-                                                   'Camouflage': Camouflage,
-                                                   'SymmetricMasking': SymmetricMasking,
-                                                   'Attention': Attention})
+    if SAVE_MODELS:
+        model = load_model(model_path, custom_objects={'TimestepDropout': TimestepDropout,
+                                                       'Camouflage': Camouflage,
+                                                       'SymmetricMasking': SymmetricMasking,
+                                                       'Attention': Attention})
 
-    test_data = np.load(test_path)
+    test_data = dict(np.load(test_path).item())
 
-    test_inputs = test_data.item()['input_ids']
+    test_inputs = test_data['input_ids']
 
     prediction = model.predict(test_inputs, batch_size=1)
 
@@ -105,27 +153,21 @@ def compute_correlations(test_path, predictions, human_metric, mode):
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     """
 
-    test_data = np.load(test_path).item()
+    test_data = dict(np.load(test_path).item())
 
-    ordered_ids = test_data['s_ids']
+    ordered_ids = test_data['test_ids']
     system_ids = {i for i in ordered_ids}
     empty_ids = test_data['empty_ids']
 
-    if mode == 'Single Task':
-        test_human_metric = test_data[human_metric]
+    correlations = {}  # Here we will store the correlations
 
-    elif mode == 'Multi Task-1' or mode == 'Multi Task-5':
-        test_human_metric = {
-            'Q1': test_data['Q1'],
-            'Q2': test_data['Q2'],
-            'Q3': test_data['Q3'],
-            'Q4': test_data['Q4'],
-            'Q5': test_data['Q5']
-        }
-
-    # Concatenate the output in order to have a similar structure of predictions as 'Multi-Task-1'
-    if mode == 'Multi Task-5':
-        predictions = np.concatenate(predictions, axis=1)
+    test_human_metrics = {
+        'Q1': test_data['test_Q1'],
+        'Q2': test_data['test_Q2'],
+        'Q3': test_data['test_Q3'],
+        'Q4': test_data['test_Q4'],
+        'Q5': test_data['test_Q5']
+    }
 
     for k in range(predictions.shape[1]):
         output_aggregation_table = np.zeros([len(system_ids)])
@@ -135,7 +177,10 @@ def compute_correlations(test_path, predictions, human_metric, mode):
         # At single task, we have only one dimension on predictions
         if mode == 'Multi Task-1' or mode == 'Multi Task-5':
             predictions_of_metric = predictions[:, k]
-            metric_real = test_human_metric['Q' + str(k + 1)]
+            metric_real = test_human_metrics['Q' + str(k + 1)]
+        else:
+            predictions_of_metric = predictions
+            metric_real = test_human_metrics[human_metric]
 
         for i, s_id in enumerate(system_ids):
             id_predictions = []
@@ -144,13 +189,8 @@ def compute_correlations(test_path, predictions, human_metric, mode):
             for j, o_id in enumerate(ordered_ids):
                 if s_id == o_id:
 
-                    if mode == 'Single Task':
-                        id_predictions.append(predictions[j])
-                        id_human_scores.append(test_human_metric[j])
-
-                    elif mode == 'Multi Task-1' or mode == 'Multi Task-5':
-                        id_predictions.append(predictions_of_metric[j])
-                        id_human_scores.append(metric_real[j])
+                    id_predictions.append(predictions_of_metric[j])
+                    id_human_scores.append(metric_real[j])
 
             # Empty ids is a list with the peer_ids which the summary they sent was empty.
             # Each position corresponds to a doc_id-peer_id. if the system had sent more
@@ -164,12 +204,38 @@ def compute_correlations(test_path, predictions, human_metric, mode):
             output_aggregation_table[i] = np.mean(np.array(id_predictions))
             human_aggregation_table[i] = np.mean(np.array(id_human_scores))
 
-        print(
-            'Q' + str(k + 1),
-            spearmanr(human_aggregation_table, output_aggregation_table)[0],
-            kendalltau(human_aggregation_table, output_aggregation_table)[0],
-            pearsonr(human_aggregation_table, output_aggregation_table)[0]
-        )
+        if mode == 'Multi Task-1' or mode == 'Multi Task-5':
+            correlations['Q{}'.format(k + 1)] = {
+                'Spearman': spearmanr(human_aggregation_table, output_aggregation_table)[0],
+                'Kendall': kendalltau(human_aggregation_table, output_aggregation_table)[0],
+                'Pearson': pearsonr(human_aggregation_table, output_aggregation_table)[0]
+            }
+
+        else:
+            correlations[human_metric] = {
+                'Spearman': spearmanr(human_aggregation_table, output_aggregation_table)[0],
+                'Kendall': kendalltau(human_aggregation_table, output_aggregation_table)[0],
+                'Pearson': pearsonr(human_aggregation_table, output_aggregation_table)[0]
+            }
+
+    if mode == 'Multi Task-1' or mode == 'Multi Task-5':
+        log_msg = 'Q1 -> {} \nQ2 -> {} \nQ3 -> {} \nQ4 -> {} \nQ5 -> {} \n'.format(
+            ''.join(['{}={:.3f}  '.format(metric, correlations['Q1'][metric])
+                     for metric in ['Spearman', 'Kendall', 'Pearson']]),
+            ''.join(['{}={:.3f}  '.format(metric, correlations['Q2'][metric])
+                     for metric in ['Spearman', 'Kendall', 'Pearson']]),
+            ''.join(['{}={:.3f}  '.format(metric, correlations['Q3'][metric])
+                     for metric in ['Spearman', 'Kendall', 'Pearson']]),
+            ''.join(['{}={:.3f}  '.format(metric, correlations['Q4'][metric])
+                     for metric in ['Spearman', 'Kendall', 'Pearson']]),
+            ''.join(['{}={:.3f}  '.format(metric, correlations['Q5'][metric])
+                     for metric in ['Spearman', 'Kendall', 'Pearson']]))
+    else:
+        log_msg = '{} -> {} \n'.format(human_metric, ''.join(
+            ['{}={:.3f}  '.format(metric, correlations[human_metric][metric])
+             for metric in ['Spearman', 'Kendall', 'Pearson']]))
+
+    LOGGER.info(log_msg)
 
 
 def main():
@@ -179,34 +245,30 @@ def main():
     config = json.load(open(CONFIG_PATH))
     years = config['read_data']['years_to_read']
 
+    params = json.load(open(os.path.join(CONFIG_DIR, 'BiGRUs_paper_config.json')))
+
     for y in years:
         for mode in ['Single Task', 'Multi Task-1', 'Multi Task-5']:
 
             train_data_path = os.path.join(INPUT_DIR, 'BiGRU_Train_{}.npy'.format(y))
             test_data_path = os.path.join(INPUT_DIR, 'BiGRU_Test_{}.npy'.format(y))
 
-            if mode == 'Single Task':
-                for metric in ['Q1', 'Q2', 'Q3', 'Q4', 'Q5']:
-                    model_path = os.path.join(MODELS_DIR, 'BiGRU_{}_{}_{}.h5'.format(y, metric, mode))
+            for metric in ['Q1', 'Q2', 'Q3', 'Q4', 'Q5']:
+                model_path = os.path.join(MODELS_DIR, 'BiGRU_{}_{}_{}.h5'.format(y, metric, mode))
 
-                    train(train_path=train_data_path, human_metric=metric, mode=mode, path_to_save=model_path)
+                model = train(train_path=train_data_path, human_metric=metric, mode=mode,
+                              path_to_save=model_path, **params[y][metric][mode])
 
-                    output = evaluate(model_path=model_path, test_path=test_data_path)
+                output = evaluate(model_path=model_path, test_path=test_data_path, model=model)
 
-                    print('{}-{}-{}: '.format(y, metric, mode))
-                    compute_correlations(test_path=test_data_path, predictions=output, human_metric=metric, mode=mode)
-
-            elif mode == 'Multi Task-1' or mode == 'Multi Task-5':
-
-                model_path = os.path.join(MODELS_DIR, 'BiGRU_{}_{}.h5'.format(y, mode))
-
-                train(train_path=train_data_path, human_metric=None, mode=mode, path_to_save=model_path)
-
-                output = evaluate(model_path=model_path, test_path=test_data_path)
-
-                print('{}-{}: '.format(y, mode))
-                compute_correlations(test_path=test_data_path, predictions=output, human_metric=None, mode=mode)
+                LOGGER.info('\n' + '=' * 55 + '\n' + '{} {} {} '.format(y, metric, mode) + '\n' + '=' * 55)
+                compute_correlations(test_path=test_data_path, predictions=output, human_metric=metric, mode=mode)
 
 
 if __name__ == '__main__':
+
+    setup_logger(logger_name='LOGGER', log_path=os.path.join(OUTPUT_DIR, 'log_BiGRUs.txt'), level=logging.INFO)
+    global LOGGER
+    LOGGER = logging.getLogger('LOGGER')
+
     main()

@@ -1,4 +1,4 @@
-# SumQE
+ # SumQE
 This is the source code for SUM-QE, a BERT-based Summary Quality Estimation Model. If you use the code for your research, please cite the following paper.  
 >*Stratos Xenouleas, Prodromos Malakasiotis, Marianna Apidianaki and Ion Androutsopoulos (2019), SUM-QE: a BERT-based Summary Quality Estimation Model.
 > Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP 2019), November 3-7, Hong Kong. (to appear)*
@@ -17,6 +17,15 @@ A preprint of the paper is available on [arXiv](https://arxiv.org/abs/1909.00578
 
 **The code will be polished and fully documented before EMNLP-IJCNLP in November 2019.**
 
+## Environment
+We used Anaconda and python=3.6 on the experiments. You can set the environment using:
+    
+    pip install requirements.txt
+
+In order to calculate the ROUGE-BLEU scores you will also need [this](https://github.com/rulller/py-rouge) repository. Yoy can clone it and install it on the environment you have created. 
+
+Last, you will need the file ``glove-wiki-gigaword-200.bin`` to be downloaded and stored into ``/input`` directory. It will be used for the embedding layer.
+
 ## Datasets 
 As we mentioned in the paper, we used the datasets from DUC-05, DUC-06 and
 DUC-07 shared tasks. In order to process and handle them easier, we constructed (at ``make_dataset.py``)
@@ -24,8 +33,8 @@ a json file ``duc_year.json`` for each year which contains all the necessary inf
 for each document of the organization, the peer (system's) and model (human's) summaries followed from the human scores 
 (the scores that annotators assigned), and the ROUGE, BLEU scores that are calculated automatically.
 
-In order to construct your datasets, you have to follow the structure shown below for each particular year. 
-Make sure that your files are renamed correctly. Bellow is the structure:
+In order to construct your own datasets, you have to follow the structure shown below for each particular year. 
+Make sure that your files are renamed correctly.
  
 ```
 project
@@ -44,8 +53,6 @@ project
     └── DUC_2007
            ...
 ```
-The above procedure for the creation of json files corresponds only to these three years. The files from other years
-may have a different format and may need different processing.
 
 So, if you have created the above structure correctly, the next step is to prepare your environment. 
 Run the following command:
@@ -55,6 +62,9 @@ Run the following command:
 After that, you will be ready to construct your datasets. Run the following command:
     
     python src/make_datasets/make_dataset.py
+
+The above procedure for the creation of json files, corresponds only to these three years. The files from other years
+may have a different format and may need different processing.
 
 ## Experiments 
 
@@ -76,14 +86,14 @@ After that, you will be ready to construct your datasets. Run the following comm
             ROUGE_BLEU-Q5 [year].csv
     ```
 
-    Each one contains the Spearman, Kendall, Pearson correlations of the automatic
+    Each one contains the Spearman, Kendall, Pearson correlations between the automatic
 and corresponding human metric and year. Short the csv according to one of these metrics to obtain the best version correspondingly. 
 
 2. Package ``LM_experiments``.At this package, we are trying to approach the 'behavior' of Q1 (Grammaticality) applying GPT and BERT Language models and calculating the perplexity of the whole summary each time. In order to execute this experiment, run the following command. Don't forget to set True the corresponding FLAGS on  ``main.py`` at the start of the file.
 
         python src/main.py
         
-    Similarly to (1), after the execution will be appeared the following csv files:
+    Similarly to (1), after the execution, the following files will be appeared:
     
     ```
     project
@@ -93,23 +103,23 @@ and corresponding human metric and year. Short the csv according to one of these
             Q1-[LM] [year].png
     ``` 
 
-    * The .csv file contains the (Spearman, Kendall, Pearson) corelations with the perplexities of k-worst bpes (each time) and the Q1 metric.
-    * The .png files contains a visualization of the .csv file with x-axis corresponds to #bpes and y-axis to the corresponding correlation score.
-    * In particular, the above experiment will create the file ``predictions of models.json`` where it will be stored all the prediction of the experiments you will run. On this file, they will be stored only the perplexities of best-k-worst-bpes, not all of them.
+    * The .csv files contains the (Spearman, Kendall, Pearson) corelations with the perplexities of k-worst bpes (each time) and the Q1 metric.
+    * The .png files contains a visualization of the .csv files with x-axis corresponds to #bpes and y-axis to the corresponding correlation score.
+    * In particular, the above experiment will create the file ``predictions of Language models.json`` where it will be stored all the prediction of the experiments you will run using a Language model [BERT_LP, GPT2_LM or BERT_NS]. On this file, they will be stored only the perplexities of best-k-worst-bpes, not all of them.
 
     ```
     project
     |  ...
     └── experiments_output
             ...
-            predictions of models.json
+            predictions of Language models.json
     ```
 
-3. Package ``LM_experiments``. Now we will try to approach the 'behavior' of Q3 (Referential Clarity), Q4 (Focus), Q5 (Structure & Coherence) using the same package as (3) and applying now BERT Next Sentence calculating the perplexity of the summary sentence by sentence. In order to execute this experiment, run the following command. Don't forget to set True the corresponding FLAGS on  ``main.py`` at the start of the file.
+3. Package ``LM_experiments``. Now we will try to approach the 'behavior' of Q3 (Referential Clarity), Q4 (Focus), Q5 (Structure & Coherence) using the same package as (2) and applying now BERT Next Sentence calculating the perplexity of the summary sentence by sentence. In order to execute this experiment, run the following command. Don't forget to set True the corresponding FLAGS on  ``main.py`` at the start of the file.
 
         python src/main.py
 
-    This will not produce anything but it will update only the Package ``predictions of models.json ``
+    This will not produce anything but it will update only the Package ``predictions of Language models.json ``
 
 4. Package ``BERT_experiments``. On this package, we are using the BERT model in order to approach the 'behavior' of all the human metrics. 
 In order to train the model, firstly you have to vectorize your summaries and to construct a structure that can be fed on the model. This can be done executing the following command:
@@ -130,6 +140,40 @@ In order to train the model, firstly you have to vectorize your summaries and to
 
         python train_Bert.py
 
-    This will train your model with all the different flavors described in the paper [Single Task, Multi-Task-1, Multi-Task-5] and it will print you the correlation of each one.
+    This will train your model with all the different flavors described in the paper [Single Task, Multi-Task-1, Multi-Tasnk-5] and it will print you the correlation of each one.
 
-5. Package ``BiGRU_experiments``. (Under construction)
+5. Package ``BiGRU_experiments``. On this package, we are using the BiGRU model with a self attension mechanism in order to approach the 'behavior' of all the human metrics, similarly to (4). Firstly, we applied the algorithm of hyper-opt in order to obtain the best parameters of the model each time using a validation set which we constructed taking all the summaries from 5 peers of each year included on the training process. You can run it using the following command:
+        
+        python hyperopt_BiGRUs.py
+
+    This script produces some log files, wich contains the performance of the model on each Trial, and some .trial file wich saves the progress of the algorithm in order start again from the point where it stopped-crashed. These files will be appeard hear:
+
+    ```
+    project
+    |  ...
+    └── hyperopt_output
+            └── logs
+                   hyper_opt_log_[metric]_[year]_[mode].txt  (e.g. hyper_opt_log_Q1_2005_Single Task)
+                   ...
+            └── Trials
+                  ...
+                  [year]_[metric]_[mode]  (e.g. 2005_Q1_Single Task)
+
+    ```
+
+    mode correspond to the different 'flavors' we tried for the output: ['Single-Task', 'Multi-Task-5', 'Mullti-Task-1']
+
+    Having done that, you can read the logs files and make a configuration file with a same format as ``configuration/BiGRUs_paper_config.json`` in order to execute your experiments. Otherwise, you can use the configuration we used on the paper running the command:
+
+        python train_BiGRUs.py
+
+    This will produce you the following .txt file which contains the correlations form all the different 'flavors' of BiGRUs with all the metrics at all the years.
+
+    ```
+    project
+    |  ...
+    └── experiments_output
+            ...
+            log_BiGRUs.txt
+    ```
+

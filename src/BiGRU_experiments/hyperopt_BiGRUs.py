@@ -40,7 +40,7 @@ def hyper_optimization(year, mode, human_metric):
     global LOGGER
     LOGGER = logging.getLogger(logger_name)
 
-    train_x, train_y, train_ordered_ids, val_x, val_y, val_ordered_ids, empty_ids = load_train_data(year)
+    train_x, train_y, val_x, val_y, val_ordered_ids = load_train_data(year)
     test_x, test_y, test_ordered_ids, test_empty_ids = load_test_data(year)
 
     if mode == 'Single Task':  # 1 Dense -> 1 predictions
@@ -49,7 +49,7 @@ def hyper_optimization(year, mode, human_metric):
         val_y = val_y[:, human_metric_index]
         test_y = test_y[:, human_metric_index]
 
-    train_samples = {'x': train_x, 'y': train_y, 'ordered_ids': train_ordered_ids, 'empty_ids': empty_ids}
+    train_samples = {'x': train_x, 'y': train_y}
     test_samples = {'x': test_x, 'y': test_y, 'ordered_ids': test_ordered_ids, 'empty_ids': test_empty_ids}
     val_samples = {'x': val_x, 'y': val_y, 'ordered_ids': val_ordered_ids}
 
@@ -359,28 +359,25 @@ def load_train_data(test_year):
     """
     train_data_path = os.path.join(INPUT_DIR, 'BiGRU_Train_{}.npy'.format(test_year))
 
-    data = np.load(train_data_path)
-    train_input = data.item().get('train_input')
-    train_q1 = data.item().get('train_Q1').reshape(-1, 1)
-    train_q2 = data.item().get('train_Q2').reshape(-1, 1)
-    train_q3 = data.item().get('train_Q3').reshape(-1, 1)
-    train_q4 = data.item().get('train_Q4').reshape(-1, 1)
-    train_q5 = data.item().get('train_Q5').reshape(-1, 1)
+    data = dict(np.load(train_data_path).item())
+    train_input = data['train_input']
+    train_q1 = data['train_Q1'].reshape(-1, 1)
+    train_q2 = data['train_Q2'].reshape(-1, 1)
+    train_q3 = data['train_Q3'].reshape(-1, 1)
+    train_q4 = data['train_Q4'].reshape(-1, 1)
+    train_q5 = data['train_Q5'].reshape(-1, 1)
     train_human_metric = np.concatenate((train_q1, train_q2, train_q3, train_q4, train_q5), axis=1)
-    train_ordered_ids = data.item().get('train_ids')
 
-    val_input = data.item().get('val_input')
-    val_q1 = data.item().get('val_Q1').reshape(-1, 1)
-    val_q2 = data.item().get('val_Q2').reshape(-1, 1)
-    val_q3 = data.item().get('val_Q3').reshape(-1, 1)
-    val_q4 = data.item().get('val_Q4').reshape(-1, 1)
-    val_q5 = data.item().get('val_Q5').reshape(-1, 1)
+    val_input = data['val_input']
+    val_q1 = data['val_Q1'].reshape(-1, 1)
+    val_q2 = data['val_Q2'].reshape(-1, 1)
+    val_q3 = data['val_Q3'].reshape(-1, 1)
+    val_q4 = data['val_Q4'].reshape(-1, 1)
+    val_q5 = data['val_Q5'].reshape(-1, 1)
     val_human_metric = np.concatenate((val_q1, val_q2, val_q3, val_q4, val_q5), axis=1)
-    val_ordered_ids = data.item().get('val_ids')
+    val_ordered_ids = data['val_ids']
 
-    empty_ids = data.item().get('empty_ids')
-
-    return train_input, train_human_metric, train_ordered_ids, val_input, val_human_metric, val_ordered_ids, empty_ids
+    return train_input, train_human_metric, val_input, val_human_metric, val_ordered_ids
 
 
 def load_test_data(test_year):
@@ -391,17 +388,17 @@ def load_test_data(test_year):
     """
     test_data_path = os.path.join(INPUT_DIR, 'BiGRU_Test_{}.npy'.format(test_year))
 
-    data = np.load(test_data_path)
-    inputs = data.item().get('input_ids')
-    q1 = data.item().get('test_Q1').reshape(-1, 1)
-    q2 = data.item().get('test_Q2').reshape(-1, 1)
-    q3 = data.item().get('test_Q3').reshape(-1, 1)
-    q4 = data.item().get('test_Q4').reshape(-1, 1)
-    q5 = data.item().get('test_Q5').reshape(-1, 1)
+    data = dict(np.load(test_data_path).item())
+    inputs = data['input_ids']
+    q1 = data['test_Q1'].reshape(-1, 1)
+    q2 = data['test_Q2'].reshape(-1, 1)
+    q3 = data['test_Q3'].reshape(-1, 1)
+    q4 = data['test_Q4'].reshape(-1, 1)
+    q5 = data['test_Q5'].reshape(-1, 1)
     human_metric = np.concatenate((q1, q2, q3, q4, q5), axis=1)
 
-    ordered_ids = data.item().get('test_ids')
-    empty_ids = data.item().get('empty_ids')
+    ordered_ids = data['test_ids']
+    empty_ids = data['empty_ids']
 
     return inputs, human_metric, ordered_ids, empty_ids
 

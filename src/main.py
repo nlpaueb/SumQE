@@ -37,7 +37,7 @@ def make_predictions_structure(years):
             for sid in system_ids:
                 predictions[y][doc_id][sid] = {}
 
-    predictions_path = os.path.join(OUTPUT_DIR, 'predictions of models.json')
+    predictions_path = os.path.join(OUTPUT_DIR, 'predictions of Language models.json')
 
     with open(predictions_path, 'w') as of:
         json.dump(obj=predictions, fp=of, sort_keys=True, indent=4)

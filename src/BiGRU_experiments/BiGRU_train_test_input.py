@@ -36,8 +36,20 @@ def save_train_test_inputs(input_dict, test_year):
     np.save(file=os.path.join(INPUT_DIR, 'BiGRU_Test_{}.npy'.format(test_year)), arr=test_dict)
 
     train_dict = {
-        'train_Q1': [], 'train_Q2': [], 'train_Q3': [], 'train_Q4': [], 'train_Q5': [], 'train_input': [],
-        'val_Q1': [], 'val_Q2': [], 'val_Q3': [], 'val_Q4': [], 'val_Q5': [], 'val_input': [], 'val_ids': [],
+        'train_Q1': [],
+        'train_Q2': [],
+        'train_Q3': [],
+        'train_Q4': [],
+        'train_Q5': [],
+        'train_input': [],
+        'train_ids': [],
+        'val_Q1': [],
+        'val_Q2': [],
+        'val_Q3': [],
+        'val_Q4': [],
+        'val_Q5': [],
+        'val_input': [],
+        'val_ids': [],
         'empty_ids': []
     }
 
@@ -49,6 +61,7 @@ def save_train_test_inputs(input_dict, test_year):
             train_dict['train_Q4'].extend(input_dict[year]['train_Q4']),
             train_dict['train_Q5'].extend(input_dict[year]['train_Q5']),
             train_dict['train_input'].extend(input_dict[year]['train_input']),
+            train_dict['train_ids'].extend(input_dict[year]['val_ordered_ids']),
             train_dict['val_Q1'].extend(input_dict[year]['val_Q1']),
             train_dict['val_Q2'].extend(input_dict[year]['val_Q2']),
             train_dict['val_Q3'].extend(input_dict[year]['val_Q3']),
@@ -106,7 +119,17 @@ def fill_the_dictionaries(data, black_list, constant):
             # Make a random choice whether or not to take this peer_id as validation ids
             in_val_ids = np.random.choice(a=2, size=1)[0]
 
-            if summary != '' and not in_val_ids:
+            if summary != '' and in_val_ids and len(input_dict['val_ordered_ids']) < 5 and s_id not in black_list:
+                input_dict['val_Q1'].append(peer['human_scores']['Q1'])
+                input_dict['val_Q2'].append(peer['human_scores']['Q2'])
+                input_dict['val_Q3'].append(peer['human_scores']['Q3'])
+                input_dict['val_Q4'].append(peer['human_scores']['Q4'])
+                input_dict['val_Q5'].append(peer['human_scores']['Q5'])
+                summary_tokens = word_tokenize(summary)
+                input_dict['val_input'].append(vectorizer.vectorize_inputs(summary_tokens)[0])
+                input_dict['val_ordered_ids'].append(s_id)
+
+            elif summary != '':
                 input_dict['train_Q1'].append(peer['human_scores']['Q1'])
                 input_dict['train_Q2'].append(peer['human_scores']['Q2'])
                 input_dict['train_Q3'].append(peer['human_scores']['Q3'])
@@ -116,15 +139,8 @@ def fill_the_dictionaries(data, black_list, constant):
                 input_dict['train_input'].append(vectorizer.vectorize_inputs(summary_tokens)[0])
                 input_dict['train_ordered_ids'].append(s_id)
 
-            elif summary != '' and in_val_ids and len(input_dict['val_ordered_ids']) < 5 and s_id not in black_list:
-                input_dict['val_Q1'].append(peer['human_scores']['Q1'])
-                input_dict['val_Q2'].append(peer['human_scores']['Q2'])
-                input_dict['val_Q3'].append(peer['human_scores']['Q3'])
-                input_dict['val_Q4'].append(peer['human_scores']['Q4'])
-                input_dict['val_Q5'].append(peer['human_scores']['Q5'])
-                summary_tokens = word_tokenize(summary)
-                input_dict['val_input'].append(vectorizer.vectorize_inputs(summary_tokens)[0])
-                input_dict['val_ordered_ids'].append(s_id)
+            else:
+                input_dict['empty_ids'].append(s_id)
 
     return input_dict
 
