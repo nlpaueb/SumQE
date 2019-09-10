@@ -1,10 +1,12 @@
 import json
+import keras.backend as K
 import logging
 import numpy as np
 import os
 import pickle
 import tempfile
 import time
+
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials, pyll
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from scipy.stats import pearsonr, spearmanr, kendalltau
@@ -20,15 +22,19 @@ HYPER_OPT_CONFIG = json.load(open(CONFIG_PATH))['hyper_optimization']['settings'
 MSG_TEMPLATE = 'Trial {:>2}/{}:  HL={:1}  HU={:3}  BS={:<3}  D={:<3}  WD={:<4}  AM={}  LR={:<5}  YEAR={}  HM={} MODE={}'
 
 
-def hyper_optimization(year, mode, human_metric):
+def hyper_optimization(year, mode, human_metric, best_params):
     """
     Execute a hyper optimization algorithm in order to obtain the best parameters for a specific model
     when we are testing on 'year' with mode='mode'
     :param year: The year we are testing.
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     :param human_metric: The metric for which the model is trained. It is needed only on 'Single Task' mode.
+    :param best_params: A dictionary where will be saved all the best parameters obtained by hyper-optimization
     """
     search_space = json.load(open(CONFIG_PATH))['hyper_optimization']['search_space']
+
+    # Clears the session for each run of the algorithm
+    K.clear_session()
 
     global TRIAL_NO
     TRIAL_NO = 0
@@ -97,15 +103,23 @@ def hyper_optimization(year, mode, human_metric):
         with open(os.path.join(TRIALS_DIR, '{}_{}_{}'.format(year, human_metric, mode)), 'wb') as f:
             pickle.dump(trials, f)
 
+    flag = True  # We want to write only the best parameters each time
     LOGGER.info('\n\n--------------------- Results Summary Best to Worst ------------------')
     for t in sorted(trials.results, key=lambda trial: trial['loss'], reverse=False):
         conf = t['results']['configuration']
         average_statistics = t['results']['statistics']
 
-        log_msg = MSG_TEMPLATE + '\n'.format(
+        if flag:
+            best_params[year][human_metric][mode] = {
+                "HL": conf['n_hidden_layers'], "HU": conf['hidden_units_size'], "BS": conf['batch_size'],
+                "D": conf['dropout_rate'], "WD": conf['word_dropout_rate'], "LR": conf['learning_rate']
+            }
+            flag = False
+
+        log_msg = MSG_TEMPLATE.format(
             t['trial_no'], HYPER_OPT_CONFIG['trials'], str(conf['n_hidden_layers']),
             str(conf['hidden_units_size']), conf['batch_size'], conf['dropout_rate'], conf['word_dropout_rate'],
-            conf['attention_mechanism'], conf['learning_rate'], year, human_metric, mode)
+            conf['attention_mechanism'], conf['learning_rate'], year, human_metric, mode) + '\n'
 
         if mode == 'Multi Task-1' or mode == 'Multi Task-5':
             log_msg += 'Val: \n Q1 -> {} \n Q2 -> {} \n Q3 -> {} \n Q4 -> {} \n Q5 -> {} \n'.format(
@@ -290,7 +304,6 @@ def calculate_performance(network, true_samples, true_targets, ordered_ids, mode
         if mode == 'Multi Task-1' or mode == 'Multi Task-5':
             predictions_of_metric = predictions[:, k]
             metric_real = true_targets[:, k]
-            # metric_real = true_targets['Q' + str(k + 1)]
         else:
             predictions_of_metric = predictions
             metric_real = true_targets
@@ -301,6 +314,7 @@ def calculate_performance(network, true_samples, true_targets, ordered_ids, mode
 
             for j, o_id in enumerate(ordered_ids):
                 if s_id == o_id:
+
                     id_predictions.append(predictions_of_metric[j])
                     id_human_scores.append(metric_real[j])
 
@@ -427,11 +441,18 @@ def main():
     config = json.load(open(CONFIG_PATH))
     years = config['read_data']['years_to_read']
 
+    best_params = {}
     for y in years:
-        for mode in ['Single Task', 'Multi Task-1', 'Multi Task-5']:
-            for metric in ['Q1', 'Q2', 'Q3', 'Q4', 'Q5']:
+        best_params[y] = {}
+        for metric in ['Q1', 'Q2', 'Q3', 'Q4', 'Q5']:
+            best_params[y][metric] = {}
+            for mode in ['Single Task', 'Multi Task-1', 'Multi Task-5']:
+                best_params[y][metric][mode] = {}
                 print('-------------------------------{}_{}_{}-------------------------------'.format(y, mode, metric))
-                hyper_optimization(year=y, mode=mode, human_metric=metric)
+                hyper_optimization(year=y, mode=mode, human_metric=metric, best_params=best_params)
+
+    with open(os.path.join(CONFIG_DIR, 'BiGRUs_hyperopt_config.json'), 'w') as of:
+        json.dump(obj=best_params, fp=of, sort_keys=True, indent=4)
 
 
 if __name__ == '__main__':

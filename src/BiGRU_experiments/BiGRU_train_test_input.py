@@ -14,6 +14,23 @@ CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.json')
 VOCAB_PATH = os.path.join(INPUT_DIR, 'vocab.txt')
 
 
+def get_val_ids(system_ids, black_list):
+    """
+    :param system_ids: The peer ids of the year adding a constant on them
+    :param black_list: Some peer_ids that we don't want to be included at the validation process
+    :returns: The val_ids which the summaries of them will be used
+    for the validation process of hyper optimization
+    """
+    np.random.shuffle(system_ids)
+
+    val_ids = []
+    for p_id in system_ids:
+        if len(val_ids) < 5 and p_id not in black_list:
+            val_ids.append(p_id)
+
+    return val_ids
+
+
 def save_train_test_inputs(input_dict, test_year):
     """
     Saves the train and test input of the test_year.
@@ -80,10 +97,10 @@ def save_train_test_inputs(input_dict, test_year):
 
 def fill_the_dictionaries(data, black_list, constant):
     """
-    Parse one time the data from each year and structure them in order to use them easier
+    Parse the data from each year and structure them in order to use them easier.
     :param data: The data of a year
     :param black_list: Some peer_ids that we don't want to be included at the validation process
-    :param constant:
+    :param constant: A constant added on peer id in order to separate common ids (e.g. 1, 2..) from different years
     :return:
     """
 
@@ -108,6 +125,9 @@ def fill_the_dictionaries(data, black_list, constant):
     vectorizer = W2VVectorizer()
     np.random.seed(0)
 
+    year_peers = list({int(peer) + constant for doc in data.values() for peer in doc['peer_summarizers']})
+    val_ids = get_val_ids(system_ids=year_peers, black_list=black_list)
+
     for doc_id, doc in data.items():
         for peer_id, peer in doc['peer_summarizers'].items():
             summary = peer['system_summary']
@@ -116,10 +136,7 @@ def fill_the_dictionaries(data, black_list, constant):
             #  on peer_ids and we want to separate them for evaluation purposes
             s_id = int(peer_id) + constant
 
-            # Make a random choice whether or not to take this peer_id as validation ids
-            in_val_ids = np.random.choice(a=2, size=1)[0]
-
-            if summary != '' and in_val_ids and len(input_dict['val_ordered_ids']) < 5 and s_id not in black_list:
+            if summary != '' and s_id in val_ids:
                 input_dict['val_Q1'].append(peer['human_scores']['Q1'])
                 input_dict['val_Q2'].append(peer['human_scores']['Q2'])
                 input_dict['val_Q3'].append(peer['human_scores']['Q3'])

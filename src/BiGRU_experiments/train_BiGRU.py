@@ -21,6 +21,7 @@ from input import INPUT_DIR
 CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.json')
 
 SAVE_MODELS = False
+HYPER_OPT_CONFIG = True  # If False, the BiGRUs will be trained with the paper's configuration
 
 
 def setup_logger(logger_name, log_path, level=logging.INFO):
@@ -245,7 +246,10 @@ def main():
     config = json.load(open(CONFIG_PATH))
     years = config['read_data']['years_to_read']
 
-    params = json.load(open(os.path.join(CONFIG_DIR, 'BiGRUs_paper_config.json')))
+    if HYPER_OPT_CONFIG:
+        params = json.load(open(os.path.join(CONFIG_DIR, 'BiGRUs_hyperopt_config.json')))
+    else:
+        params = json.load(open(os.path.join(CONFIG_DIR, 'BiGRUs_paper_config.json')))
 
     for y in years:
         for mode in ['Single Task', 'Multi Task-1', 'Multi Task-5']:

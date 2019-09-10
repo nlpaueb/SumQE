@@ -124,7 +124,7 @@ and corresponding human metric and year. Short the csv according to one of these
 4. Package ``BERT_experiments``. On this package, we are using the BERT model in order to approach the 'behavior' of all the human metrics. 
 In order to train the model, firstly you have to vectorize your summaries and to construct a structure that can be fed on the model. This can be done executing the following command:
 
-        python Bert_train_test_input.py
+        python BERT_train_test_input.py
 
     This will produce you the following files that will be used on the train and test process correspondingly
 
@@ -140,34 +140,51 @@ In order to train the model, firstly you have to vectorize your summaries and to
 
         python train_Bert.py
 
-    This will train your model with all the different flavors described in the paper [Single Task, Multi-Task-1, Multi-Tasnk-5] and it will print you the correlation of each one.
+    This will train your model with all the different flavors described in the paper [Single Task, Multi-Task-1, Multi-Task-5] and it will print you the correlation of each one.
 
-5. Package ``BiGRU_experiments``. On this package, we are using the BiGRU model with a self attension mechanism in order to approach the 'behavior' of all the human metrics, similarly to (4). Firstly, we applied the algorithm of hyper-opt in order to obtain the best parameters of the model each time using a validation set which we constructed taking all the summaries from 5 peers of each year included on the training process. You can run it using the following command:
+5. Package ``BiGRU_experiments``. On this package, we are using the BiGRU model with a self attention mechanism in order to approach the 'behavior' of all the human metrics, similarly to (4). 
+Firstly, we vectorized the summaries and constructed a structure that can be fed on the model using this command:
+        
+        python BiGRU_train_test_input.py
+        
+    Then, we applied the algorithm of hyper-opt in order to obtain the best parameters of the model each time using a validation set. The validation set was constructed taking all the summaries from 5 random peers of each year included on the training process. On the ``configuration/config.json`` you will find some hyper-optimization settings witch can be modified. 
+    After setting up, you will be ready to run the algorithm using the following command:
         
         python hyperopt_BiGRUs.py
 
-    This script produces some log files, wich contains the performance of the model on each Trial, and some .trial file wich saves the progress of the algorithm in order start again from the point where it stopped-crashed. These files will be appeard hear:
+    This script produces:
+     * Log files, which contains the performance of the model on each Trial 
+     * Trial files which saves the progress of the algorithm in order start again from the point where it stopped-crashed
+     * A config file with the best parameters for each 'flavor'-metric-year
+     
+     These files will be appeared hear:
 
     ```
     project
     |  ...
+    └── configuration
+            └── BiGRUs_hyperopt_config.json
+                ...    
     └── hyperopt_output
             └── logs
-                   hyper_opt_log_[metric]_[year]_[mode].txt  (e.g. hyper_opt_log_Q1_2005_Single Task)
-                   ...
-            └── Trials
+                  hyper_opt_log_[metric]_[year]_[mode].txt  (e.g. hyper_opt_log_Q1_2005_Single Task)
                   ...
+            └── Trials
                   [year]_[metric]_[mode]  (e.g. 2005_Q1_Single Task)
-
+                  ...
+    
     ```
 
-    mode correspond to the different 'flavors' we tried for the output: ['Single-Task', 'Multi-Task-5', 'Mullti-Task-1']
+    mode: Corresponds to the different 'flavors' we tried for the output ['Single-Task', 'Multi-Task-5', 'Mullti-Task-1']
 
-    Having done that, you can read the logs files and make a configuration file with a same format as ``configuration/BiGRUs_paper_config.json`` in order to execute your experiments. Otherwise, you can use the configuration we used on the paper running the command:
+    Having done that, you can train your BiGRUS using:
+    * The paper configuration: ``configuration/BiGRUs_paper_config.json`` --> HYPER_OPT_CONFIG = True
+    * The configuration produced by hyperopt ``configuration/BiGRUs_hyperopt_config.json`` HYPER_OPT_CONFIG = False
+    * You will find HYPER_OPT_CONFIG at the start of train_BiGRUs.py file.
 
-        python train_BiGRUs.py
+          python train_BiGRUs.py
 
-    This will produce you the following .txt file which contains the correlations form all the different 'flavors' of BiGRUs with all the metrics at all the years.
+    This, will produce you the following .txt file which contains the correlations form all the different 'flavors' of BiGRUs with all the metrics at all the years.
 
     ```
     project

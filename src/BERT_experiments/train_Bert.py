@@ -6,7 +6,7 @@ from keras.callbacks import EarlyStopping
 from keras.models import load_model
 from scipy.stats import pearsonr, spearmanr, kendalltau
 
-from src.BERT_experiments.Bert_model import BERT, compile_bert
+from src.BERT_experiments.BERT_model import BERT, compile_bert
 from configuration import CONFIG_DIR
 from trained_models import MODELS_DIR
 from input import INPUT_DIR
@@ -24,25 +24,25 @@ def train(train_path, human_metric, mode, path_to_save):
     :return: The trained model.
     """
 
-    train_data = np.load(train_path)
+    train_data = dict(np.load(train_path).item())
 
     train_input_dict = {
-        'word_inputs': train_data.item().get('word_inputs'),
-        'pos_inputs': train_data.item().get('pos_inputs'),
-        'seg_inputs': train_data.item().get('seg_inputs')
+        'word_inputs': train_data['word_inputs'],
+        'pos_inputs': train_data['pos_inputs'],
+        'seg_inputs': train_data['seg_inputs']
     }
 
     train_human_metric = None
 
     if mode == 'Single Task':
-        train_human_metric = train_data.item().get(human_metric)
+        train_human_metric = train_data[human_metric]
 
     elif mode == 'Multi Task-1' or mode == 'Multi Task-5':
-        q1 = train_data.item().get('Q1').reshape(-1, 1)
-        q2 = train_data.item().get('Q2').reshape(-1, 1)
-        q3 = train_data.item().get('Q3').reshape(-1, 1)
-        q4 = train_data.item().get('Q4').reshape(-1, 1)
-        q5 = train_data.item().get('Q5').reshape(-1, 1)
+        q1 = train_data['Q1'].reshape(-1, 1)
+        q2 = train_data['Q2'].reshape(-1, 1)
+        q3 = train_data['Q3'].reshape(-1, 1)
+        q4 = train_data['Q4'].reshape(-1, 1)
+        q5 = train_data['Q5'].reshape(-1, 1)
         train_human_metric = np.concatenate((q1, q2, q3, q4, q5), axis=1)
 
     lr = 2e-5
@@ -66,7 +66,7 @@ def evaluate(model_path, test_path):
 
     model = load_model(model_path, custom_objects={'BERT': BERT})
 
-    test_data = np.load(test_path).item()
+    test_data = dict(np.load(test_path).item())
 
     test_input_dict = {
         'word_inputs': test_data['word_inputs'],
@@ -88,7 +88,7 @@ def compute_correlations(test_path, predictions, human_metric, mode):
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     """
 
-    test_data = np.load(test_path).item()
+    test_data = dict(np.load(test_path).item())
 
     ordered_ids = test_data['peer_ids']
     system_ids = {i for i in ordered_ids}
