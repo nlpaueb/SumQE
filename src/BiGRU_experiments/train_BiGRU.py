@@ -11,12 +11,12 @@ from scipy.stats import pearsonr, spearmanr, kendalltau
 from src.BiGRU_experiments.masking import Camouflage, SymmetricMasking
 from src.BiGRU_experiments.attension import Attention
 from src.BiGRU_experiments.dropout import TimestepDropout
-
 from src.BiGRU_experiments.BiGRU_model import compile_bigrus_attention
+
 from configuration import CONFIG_DIR
 from experiments_output import OUTPUT_DIR
-from trained_models import MODELS_DIR
 from input import INPUT_DIR
+from trained_models import MODELS_DIR
 
 CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.json')
 
@@ -28,7 +28,7 @@ def setup_logger():
     """
     Setups the logger in order to save the results-correlations of BiGRUs experiments.
     """
-    logger = logging.getLogger('BiGRUs_logs')
+    logger = logging.getLogger('BiGRU_logs')
     formatter = logging.Formatter('%(message)s')
     file_handler = logging.FileHandler(os.path.join(OUTPUT_DIR, 'log_BiGRUs.txt'), mode='w')
     file_handler.setFormatter(formatter)
@@ -90,7 +90,7 @@ def train(train_path, human_metric, path_to_save, mode, **params):
     Train the BiGRU model
     :param train_path: Path to the train data in order to load them.
     :param human_metric: The metric for which the model is trained. It is needed only on 'Single Task' mode.
-    :param path_to_save: The path where we will save the model.
+    :param path_to_save: The path where we will save the model. If SAVE_MODELS=True.
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     :returns The trained model
     """
@@ -99,8 +99,9 @@ def train(train_path, human_metric, path_to_save, mode, **params):
 
     train_x, train_y = load_train_data(train_path=train_path, human_metric=human_metric, mode=mode)
 
+    # First dimension of shape is not used
     model = compile_bigrus_attention(
-        shape=(1000, 300),
+        shape=(300, 300),
         n_hidden_layers=params['HL'],
         hidden_units_size=params['HU'],
         dropout_rate=params['D'],
@@ -111,7 +112,7 @@ def train(train_path, human_metric, path_to_save, mode, **params):
 
     early = EarlyStopping(monitor='val_loss', patience=10, baseline=None, restore_best_weights=False)
 
-    model.fit(train_x, train_y, epochs=50, batch_size=params['BS'], callbacks=[early], shuffle=True)
+    model.fit(train_x, train_y, epochs=50, batch_size=params['BS'], callbacks=[early])
 
     if SAVE_MODELS:
         model.save(path_to_save)
@@ -121,7 +122,8 @@ def train(train_path, human_metric, path_to_save, mode, **params):
 
 def evaluate(model_path, test_path, model):
     """
-    Evaluates a model and sends back the predictions.
+    Evaluates a model and sends back the predictions. If you have saved the models from
+    a previous training, you can call the evaluation function skipping the train. SAVE_MODELS must be True!
     :param model_path: The path on the trained model.
     :param test_path: Path to the test data.
     :param model: The trained model.
@@ -158,7 +160,7 @@ def compute_correlations(test_path, predictions, human_metric, mode):
     system_ids = {i for i in ordered_ids}
     empty_ids = test_data['empty_ids']
 
-    correlations = {}  # Here we will store the correlations
+    correlations = {}  # Here we will be stored the correlations
 
     test_human_metrics = {
         'Q1': test_data['test_Q1'],
@@ -259,6 +261,7 @@ def main():
             test_data_path = os.path.join(INPUT_DIR, 'BiGRU_Test_{}.npy'.format(y))
 
             for metric in ['Q1', 'Q2', 'Q3', 'Q4', 'Q5']:
+
                 model_path = os.path.join(MODELS_DIR, 'BiGRU_{}_{}_{}.h5'.format(y, metric, mode))
 
                 model = train(train_path=train_data_path, human_metric=metric, mode=mode,

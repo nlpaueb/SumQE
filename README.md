@@ -81,10 +81,10 @@ may have a different format and might need different processing.
 
     Each one contains the Spearman, Kendall and Pearson correlations between the automatic metric, and each linguistic quality and year.
 
-2. Package ``LM_experiments``, file ``LM_experiments.py``. In this file, BERT and GPT2 language models are used to approximate Q1 (Grammaticality) calculating the perplexity of the whole summary each time. 
-To execute this experiment, you can run the following command. Don't forget to set the corresponding FLAGS to True at the beginning of the ``main.py``.
+2. Package ``LM_experiments``, file ``BERT_GPT2.py``. In this file, BERT and GPT2 language models are used to approximate Q1 (Grammaticality) calculating the perplexity of the whole summary each time. 
+To execute this experiment, you can run the following command. Don't forget to set the corresponding FLAGS to True in the beginning of the ``main.py`` depending on which model you want to run.
 
-        python src/main.py
+        python run_models.py
         
     after execution, the following files will be generated:
     
@@ -98,22 +98,22 @@ To execute this experiment, you can run the following command. Don't forget to s
             LM_logs.txt
     ``` 
 
-    * The .csv files contain the (Spearman, Kendall and Pearson) correlations with the perplexities of k-worst bpes and the Q1 metric.
+    * The .csv files contain the (Spearman, Kendall and Pearson) correlations with the perplexities of k-worst bpes and the Q1 linguistic quality.
     * The .png files contain a visualization of the .csv files where the x-axis corresponds to #bpes and the y-axis to the corresponding correlation score.
     * One .json file, ``predictions of Language models.json`` which contain all the prediction of the experiments you will run using a Language model [BERT_LP, GPT2_LM or BERT_NS]. On this file, will be stored only the perplexities of the best-k-worst-bpes, not all of them.
-    * One log file, ``LM_logs.txt`` which contains the results-correlations 
+    * One log file, ``LM_logs.txt`` which contain the results-correlations 
     
-3. Package ``LM_experiments``, file ``BERT_NS_experiments.py``. In this file, BERT Next Sentence model is used to approximate the 'behavior' of Q3 (Referential Clarity), Q4 (Focus) and Q5 (Structure & Coherence) calculating the perplexity of the summary, sentence by sentence. 
-You can execute this experiment with the following command. Similarly to (2), don't forget to set the corresponding FLAGS to True in the beginning of the ``main.py``. 
+3. Package ``LM_experiments``, file ``BERT_NS.py``. In this file, BERT Next Sentence model is used to approximate the 'behavior' of Q3 (Referential Clarity), Q4 (Focus) and Q5 (Structure & Coherence) calculating the perplexity of the summary, sentence by sentence. 
+You can execute this experiment with the following command. Similarly to (2), don't forget to set the corresponding FLAGS to True in the beginning of the ``main.py`` depending on which model you want to run. 
 
-        python src/main.py
+        python run_models.py
 
     This, produce the ``predictions of Language models.json `` and the log file ``LM_logs.txt`` as described to (2).
 
 4. Package ``BERT_experiments``. This package uses the BERT model to approximate the 'behavior' of all linguistic qualities. 
 To train the model, first you need to vectorize your summaries and construct a structure that can be fed to the model. This can be done executing the following command:
 
-        python BERT_train_test_input.py
+        python prepare_BERT_input.py
 
     This will produce the following files that will be used for training and testing.
     
@@ -125,16 +125,25 @@ To train the model, first you need to vectorize your summaries and construct a s
             Bert_Test_input_[year].npy
     ```
 
-    Having done that, you are ready to train and evaluate your model by running:
+    Having done that, you are ready to train and evaluate your BERT models using the configuration that you will find on ``configuration/BERT_paper_config.json``. 
+    You can keep as it is or you can modify it depending on your preferences.
 
         python train_Bert.py
 
-    This will train the model with all the different flavors described in the paper [Single Task, Multi-Task-1, Multi-Task-5] and will print you the correlation of each one.
+    This will produce you the following .txt file which contains the correlations from all the different 'flavors' of BERT with all the linguistic qualities and for all the years.
+
+    ```
+    project
+    |  ...
+    └── experiments_output
+            ...
+            log_BERTs.txt
+    ```
 
 5. Package ``BiGRU_experiments``. In this package, BiGRU model with a self attention mechanism is used in order to approximate the 'behavior' of all linguistic qualities, similarly to (4). 
 We first vectorize the summaries and construct a structure that can be fed to the model using this command:
 
-        python BiGRU_train_test_input.py
+        python prepare_BiGRU_input.py
         
     Then, it is optional to apply the algorithm of hyper-opt in order to obtain the best parameters of the model using a validation set. 
     The validation set was constructed by taking all summaries from 5 random peers for each year. On the ``configuration/config.json`` you will find some hyper-optimization settings that can be modified. 
@@ -145,7 +154,7 @@ We first vectorize the summaries and construct a structure that can be fed to th
     This script produces:
      * Log files, which contain the performance of the model for each Trial 
      * Trial files which save the progress of the algorithm in order start again from the point where it stopped-crashed (in case it stops/crashes)
-     * A config file with the best parameters for each combination of (mode, metric, year)
+     * A config file with the best parameters for each combination of (mode, linguistic quality, year)
      
      These files will appear hear:
 
@@ -157,10 +166,10 @@ We first vectorize the summaries and construct a structure that can be fed to th
                 ...    
     └── hyperopt_output
             └── logs
-                  hyper_opt_log_[metric]_[year]_[mode].txt  (e.g. hyper_opt_log_Q1_2005_Single Task)
+                  hyper_opt_log_[linguistic qualitie]_[year]_[mode].txt  (e.g. hyper_opt_log_Q1_2005_Single Task)
                   ...
             └── Trials
-                  [year]_[metric]_[mode]  (e.g. 2005_Q1_Single Task)
+                  [year]_[linguistic qualitie]_[mode]  (e.g. 2005_Q1_Single Task)
                   ...
     
     ```
@@ -174,7 +183,7 @@ We first vectorize the summaries and construct a structure that can be fed to th
 
           python train_BiGRUs.py
 
-    This will produce you the following .txt file which contains the correlations from all the different 'flavors' of BiGRUs with all the metrics and for all the years.
+    This will produce you the following .txt file which contains the correlations from all the different 'flavors' of BiGRUs with all the linguistic qualities and for all the years.
 
     ```
     project

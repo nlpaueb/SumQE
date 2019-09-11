@@ -1,0 +1,193 @@
+{
+  "2005":{
+
+    "Q1":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    },
+
+    "Q2":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    },
+
+    "Q3":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    },
+
+    "Q4":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    },
+
+    "Q5":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    }
+  },
+
+  "2006":{
+
+    "Q1":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    },
+
+    "Q2":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    },
+
+    "Q3":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    },
+
+    "Q4":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    },
+
+    "Q5":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    }
+
+  },
+
+  "2007":{
+
+    "Q1":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    },
+
+    "Q2":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    },
+
+    "Q3":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+       "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    },
+
+    "Q4":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    },
+
+    "Q5":{
+      "Single Task":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-1":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      },
+      "Multi Task-5":{
+        "BS": 8, "D": 0.1,  "LR": 2e-5
+      }
+    }
+
+  }
+
+}

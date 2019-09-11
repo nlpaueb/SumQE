@@ -4,8 +4,8 @@ import numpy as np
 import os
 from scipy.stats import pearsonr, spearmanr, kendalltau
 
-from src.LM_experiments.BERT_NS_experiments import run_bert_ns
-from src.LM_experiments.LM_experiments import run_lm
+from src.LM_experiments.BERT_NS import run_bert_ns
+from src.LM_experiments.BERT_GPT2 import run_lm
 
 
 from configuration import CONFIG_DIR
