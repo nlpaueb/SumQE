@@ -14,7 +14,7 @@ from configuration import CONFIG_DIR
 from experiments_output import OUTPUT_DIR
 
 CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.json')
-MAX_BPES_TO_SEARCH = 512
+MAX_BPES_TO_SEARCH = 512  # Equal to number of bpes that BERT can handle
 
 
 def run_lm(data, year, model_name, predictions_dict):
@@ -29,10 +29,10 @@ def run_lm(data, year, model_name, predictions_dict):
 
     model, tokenizer, vocab_size = None, None, None
     if model_name == 'GPT2_LM':
-        tokenizer = GPT2Tokenizer.from_pretrained('gpt2_LM')
+        tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         vocab_size = len(tokenizer.encoder)
 
-        model = GPT2LMHeadModel.from_pretrained('gpt2_LM')
+        model = GPT2LMHeadModel.from_pretrained('gpt2')
 
     elif model_name == 'BERT_LM':
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
@@ -77,8 +77,9 @@ def run_lm(data, year, model_name, predictions_dict):
 
             with torch.no_grad():
                 if summary != '':
+
                     if model_name == 'GPT2_LM':
-                        predictions, past = model(tokens_tensor)  # GPT returns the present
+                        predictions, _ = model(tokens_tensor)  # GPT returns the present
 
                     elif model_name == 'BERT_LM':
                         predictions = model(tokens_tensor)  # BERT returns only the predictions
@@ -129,7 +130,7 @@ def not_valid(peer_id, doc_id):
 
 def get_perplexity(probabilities):
     """
-    We are looking at each combination of 1,2,...512 worst bpes and calculate the perplexity
+    We are looking at each combination of k = 1,2,...512 worst bpes and calculate the perplexity
     of each one in order to decide how many of the worst bpes Ι have to take into consideration
     to approach the 'target' human metric behavior.
     :param probabilities: A list with probabilities of the next words each time
@@ -213,11 +214,11 @@ def compute_correlations_of_each_k(data, predictions, model_name, year):
 
 def visualize_correlation_metrics(spearman_scores, kendall_scores, pearson_scores, model_name, year):
     """
-    Visualize the correlation metric from all the k-worst bpes cases
-    :param spearman_scores: The spearman correlations of Q1 and k-worst bpes each time
-    :param kendall_scores: The Kendall correlations of Q1 and k-worst bpes each time
-    :param pearson_scores: The Pearson correlations of Q1 and k-worst bpes each time
-    :param model_name: Name of LM_experiments we used (BERT or GPT2). It is used on the output file name
+    Visualize the scores of correlation metrics with respect to k-worst bpes you tried
+    :param spearman_scores: The spearman correlation scores of Q1 and k-worst bpes each time
+    :param kendall_scores: The Kendall correlation scores of Q1 and k-worst bpes each time
+    :param pearson_scores: The Pearson correlation scores of Q1 and k-worst bpes each time
+    :param model_name: Name of Language Model you used (BERT or GPT2). It is used on the output file name
     :param year: The corresponding year of the data
     """
     x_ticks = [i for i in range(1, MAX_BPES_TO_SEARCH + 1)]

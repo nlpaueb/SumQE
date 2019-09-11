@@ -10,7 +10,7 @@
       "epochs": 50
     },
 
-    "search_apace":{
+    "search_space":{
       "n_hidden_layers": [1, 2],
       "hidden_units_size": [100, 200, 300],
       "batch_size": [32, 64, 128],

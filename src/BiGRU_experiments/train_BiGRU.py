@@ -24,24 +24,22 @@ SAVE_MODELS = False
 HYPER_OPT_CONFIG = True  # If False, the BiGRUs will be trained with the paper's configuration
 
 
-def setup_logger(logger_name, log_path, level=logging.INFO):
+def setup_logger():
     """
-    Setups the logger in order to write on different file on each type (mode) of model optimization.
-    :param logger_name: The name of the logger
-    :param log_path: Path to log file
-    :param level: The lo level INFO:Informational messages that might make sense to end users
-    and system administrators, and highlight the progress of the application.
+    Setups the logger in order to save the results-correlations of BiGRUs experiments.
     """
-    logger = logging.getLogger(logger_name)
+    logger = logging.getLogger('BiGRUs_logs')
     formatter = logging.Formatter('%(message)s')
-    file_handler = logging.FileHandler(log_path, mode='w')
+    file_handler = logging.FileHandler(os.path.join(OUTPUT_DIR, 'log_BiGRUs.txt'), mode='w')
     file_handler.setFormatter(formatter)
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
 
-    logger.setLevel(level)
+    logger.setLevel(logging.INFO)
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
+
+    return logger
 
 
 def load_train_data(train_path, human_metric, mode):
@@ -246,6 +244,9 @@ def main():
     config = json.load(open(CONFIG_PATH))
     years = config['read_data']['years_to_read']
 
+    global LOGGER
+    LOGGER = setup_logger()
+
     if HYPER_OPT_CONFIG:
         params = json.load(open(os.path.join(CONFIG_DIR, 'BiGRUs_hyperopt_config.json')))
     else:
@@ -270,9 +271,4 @@ def main():
 
 
 if __name__ == '__main__':
-
-    setup_logger(logger_name='LOGGER', log_path=os.path.join(OUTPUT_DIR, 'log_BiGRUs.txt'), level=logging.INFO)
-    global LOGGER
-    LOGGER = logging.getLogger('LOGGER')
-
     main()

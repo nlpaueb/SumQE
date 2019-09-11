@@ -1,6 +1,7 @@
 import json
-import os
+import logging
 import numpy as np
+import os
 from scipy.stats import pearsonr, spearmanr, kendalltau
 
 from src.LM_experiments.BERT_NS_experiments import run_bert_ns
@@ -16,6 +17,25 @@ CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.json')
 GPT2 = True
 BERT_LM = True
 BERT_NS = True
+
+
+def setup_logger():
+    """
+    Setups the logger in order to save the results-correlations of Language models.
+    """
+
+    logger = logging.getLogger('LM_logs')
+    formatter = logging.Formatter('%(message)s')
+    file_handler = logging.FileHandler(os.path.join(OUTPUT_DIR, 'LM_logs.txt'), mode='w')
+    file_handler.setFormatter(formatter)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+
+    logger.setLevel(logging.INFO)
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
+
+    return logger
 
 
 def make_predictions_structure(years):
@@ -74,9 +94,10 @@ def compute_correlations(year, predictions, data, human_metrics, auto_metric):
         predictions_aggregation_table[counter] = np.mean(np.array(id_predictions))
         human_aggregation_table[counter, :] = np.mean(id_human_scores, axis=0)
 
+    lm_logger.info('\n' + '=' * 55 + '\n' + 'YEAR={}  MODEL={}'.format(year, auto_metric) + '\n' + '=' * 55)
+
     for i, h_m in enumerate(human_metrics):
-        print('{} - {}:  Spearman: {}  Kendall: {}  Pearson: {}'.format(
-            auto_metric, h_m,
+        lm_logger.info(h_m + ' ->  Spearman={:.3f}  Kendall={:.3f}  Pearson={:.3f} \n'.format(
             spearmanr(human_aggregation_table[:, i], -predictions_aggregation_table)[0],
             kendalltau(human_aggregation_table[:, i], -predictions_aggregation_table)[0],
             pearsonr(human_aggregation_table[:, i], -predictions_aggregation_table)[0]
@@ -89,28 +110,31 @@ def main():
 
     predictions = make_predictions_structure(years)
 
+    global lm_logger
+    lm_logger = setup_logger()
+
     for year in years:
-        print('==========================================={}==========================================='.format(year))
+
         dataset_path = os.path.join(DATASETS_DIR, 'duc_{}.json'.format(year))
         data = json.load(open(dataset_path))
 
         if BERT_NS:
-            print('=== BERT Next Sentence Started ===')
+            print('\n\nBERT Next Sentence Started for {} started...'.format(year))
             predictions = run_bert_ns(data=data, year=year, predictions_dict=predictions)
             compute_correlations(year=year, predictions=predictions, data=data,
                                  human_metrics=['Q3', 'Q4', 'Q5'], auto_metric='BERT_NS')
 
         if BERT_LM:
-            print('=== BERT LM_experiments Started ===')
+            print('\n\nBERT Language Model for {} started...'.format(year))
             predictions = run_lm(data=data, year=year, model_name='BERT_LM', predictions_dict=predictions)
             compute_correlations(year=year, predictions=predictions, data=data,
                                  human_metrics=['Q1'], auto_metric='BERT_LM')
 
         if GPT2:
-            print('=== GPT2 LM_experiments Started ===')
+            print('\n\nGPT2 Language Model for {} started...'.format(year))
             predictions = run_lm(data=data, year=year, model_name='GPT2_LM', predictions_dict=predictions)
             compute_correlations(year=year, predictions=predictions, data=data,
-                                 human_metrics=['Q1'], auto_metric='GPT2')
+                                 human_metrics=['Q1'], auto_metric='GPT2_LM')
 
 
 if __name__ == '__main__':
