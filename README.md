@@ -82,7 +82,7 @@ may have a different format and might need different processing.
     Each one contains the Spearman, Kendall and Pearson correlations between the automatic metric, and each linguistic quality and year.
 
 2. Package ``LM_experiments``, file ``BERT_GPT2.py``. In this file, BERT and GPT2 language models are used to approximate Q1 (Grammaticality) calculating the perplexity of the whole summary each time. 
-To execute this experiment, you can run the following command. Don't forget to set the corresponding FLAGS to True in the beginning of the ``main.py`` depending on which model you want to run.
+To execute this experiment, you can run the following command. Don't forget to set the corresponding FLAGS to True in the beginning of the ``run_models`` depending on which model you want to run.
 
         python run_models.py
         
@@ -104,7 +104,7 @@ To execute this experiment, you can run the following command. Don't forget to s
     * One log file, ``LM_logs.txt`` which contain the results-correlations 
     
 3. Package ``LM_experiments``, file ``BERT_NS.py``. In this file, BERT Next Sentence model is used to approximate the 'behavior' of Q3 (Referential Clarity), Q4 (Focus) and Q5 (Structure & Coherence) calculating the perplexity of the summary, sentence by sentence. 
-You can execute this experiment with the following command. Similarly to (2), don't forget to set the corresponding FLAGS to True in the beginning of the ``main.py`` depending on which model you want to run. 
+You can execute this experiment with the following command. Similarly to (2), don't forget to set the corresponding FLAGS to True in the beginning of the ``run_models`` depending on which model you want to run. 
 
         python run_models.py
 
