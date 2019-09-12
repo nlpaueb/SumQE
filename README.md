@@ -166,10 +166,10 @@ We first vectorize the summaries and construct a structure that can be fed to th
                 ...    
     └── hyperopt_output
             └── logs
-                  hyper_opt_log_[linguistic qualitie]_[year]_[mode].txt  (e.g. hyper_opt_log_Q1_2005_Single Task)
+                  hyper_opt_log_[linguistic quality]_[year]_[mode].txt  (e.g. hyper_opt_log_Q1_2005_Single Task)
                   ...
             └── Trials
-                  [year]_[linguistic qualitie]_[mode]  (e.g. 2005_Q1_Single Task)
+                  [year]_[linguistic quality]_[mode]  (e.g. 2005_Q1_Single Task)
                   ...
     
     ```
