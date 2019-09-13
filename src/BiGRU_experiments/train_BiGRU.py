@@ -21,7 +21,7 @@ from trained_models import MODELS_DIR
 CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.json')
 
 SAVE_MODELS = False
-HYPER_OPT_CONFIG = True  # If False, the BiGRUs will be trained with the paper's configuration
+HYPER_OPT_CONFIG = False  # If False, the BiGRUs will be trained with the paper's configuration
 
 
 def setup_logger():
@@ -51,7 +51,7 @@ def load_train_data(train_path, human_metric, mode):
     :return: The corresponding numpy arrays, ready to be fed on the model
     """
 
-    train_data = dict(np.load(train_path).item())
+    train_data = dict(np.load(train_path, allow_pickle=True).item())
 
     # old_data = np.load(os.path.join(INPUT_DIR, 'BiGRU_Input_2005.npy'))
     # old_train = old_data.item()['train_input']
@@ -110,9 +110,9 @@ def train(train_path, human_metric, path_to_save, mode, **params):
         mode=mode
     )
 
-    early = EarlyStopping(monitor='val_loss', patience=10, baseline=None, restore_best_weights=False)
+    early = EarlyStopping(monitor='val_loss', patience=10, verbose=1, baseline=None, restore_best_weights=False)
 
-    model.fit(train_x, train_y, epochs=50, batch_size=params['BS'], callbacks=[early])
+    model.fit(train_x, train_y, epochs=params["EPOCHS"], batch_size=params['BS'], callbacks=[early])
 
     if SAVE_MODELS:
         model.save(path_to_save)
@@ -136,7 +136,7 @@ def evaluate(model_path, test_path, model):
                                                        'SymmetricMasking': SymmetricMasking,
                                                        'Attention': Attention})
 
-    test_data = dict(np.load(test_path).item())
+    test_data = dict(np.load(test_path, allow_pickle=True).item())
 
     test_inputs = test_data['input_ids']
 
@@ -154,7 +154,7 @@ def compute_correlations(test_path, predictions, human_metric, mode):
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     """
 
-    test_data = dict(np.load(test_path).item())
+    test_data = dict(np.load(test_path, allow_pickle=True).item())
 
     ordered_ids = test_data['test_ids']
     system_ids = {i for i in ordered_ids}

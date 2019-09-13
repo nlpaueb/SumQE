@@ -8,14 +8,13 @@ from keras.models import Model
 from keras.optimizers import Adam
 from keras.regularizers import l2
 
-
 from src.BiGRU_experiments.masking import Camouflage, SymmetricMasking
 from src.BiGRU_experiments.attension import Attention
 from src.BiGRU_experiments.dropout import TimestepDropout
 
-from input import INPUT_DIR
+from gensim.downloader import base_dir
 
-EMBEDDINGS_PATH = os.path.join(INPUT_DIR, 'glove-wiki-gigaword-200.bin')
+EMBEDDINGS_PATH = os.path.join(base_dir, 'glove-wiki-gigaword-200')
 
 
 def pretrained_embedding():
@@ -23,7 +22,7 @@ def pretrained_embedding():
     :return: A Model with an embeddings layer
     """
     inputs = Input(shape=(None,), dtype='int32')
-    embeddings = KeyedVectors.load_word2vec_format(EMBEDDINGS_PATH, binary=True)
+    embeddings = KeyedVectors.load_word2vec_format(EMBEDDINGS_PATH, binary=False)
     word_encodings_weights = np.concatenate((np.zeros((1, embeddings.syn0.shape[-1]), dtype=np.float32),
                                              embeddings.syn0), axis=0)
     embeds = Embedding(len(word_encodings_weights), word_encodings_weights.shape[-1],
@@ -34,7 +33,7 @@ def pretrained_embedding():
 
 def compile_bigrus_attention(shape, n_hidden_layers, hidden_units_size, dropout_rate, word_dropout_rate, lr, mode):
     """
-    Compiles a Hierarchical RNN based on the given parameters
+    Compiles a BiGRU based on the given parameters
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     :param shape: The input shape
     :param n_hidden_layers: How many stacked Layers you want.

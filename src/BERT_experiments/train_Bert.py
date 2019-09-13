@@ -20,7 +20,7 @@ SAVE_MODELS = False
 
 def setup_logger():
     """
-    Setups the logger in order to save the results-correlations of BiGRUs experiments.
+    Setups the logger in order to save the results-correlations of BERT experiments.
     """
     logger = logging.getLogger('BERT_logs')
     formatter = logging.Formatter('%(message)s')
@@ -46,7 +46,7 @@ def train(train_path, human_metric, mode, path_to_save, **params):
     :return: The trained model.
     """
 
-    train_data = dict(np.load(train_path).item())
+    train_data = dict(np.load(train_path, allow_pickle=True).item())
 
     train_input_dict = {
         'word_inputs': train_data['word_inputs'],
@@ -94,7 +94,7 @@ def evaluate(model_path, test_path, model):
     if SAVE_MODELS:
         model = load_model(model_path, custom_objects={'BERT': BERT})
 
-    test_data = dict(np.load(test_path).item())
+    test_data = dict(np.load(test_path, allow_pickle=True).item())
 
     test_input_dict = {
         'word_inputs': test_data['word_inputs'],
@@ -116,7 +116,7 @@ def compute_correlations(test_path, predictions, human_metric, mode):
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     """
 
-    test_data = dict(np.load(test_path).item())
+    test_data = dict(np.load(test_path, allow_pickle=True).item())
 
     ordered_ids = test_data['peer_ids']
     system_ids = {i for i in ordered_ids}

@@ -18,17 +18,41 @@ A preprint of the paper is available on [arXiv](https://arxiv.org/abs/1909.00578
 **The code will be polished and fully documented before EMNLP-IJCNLP in November 2019.**
 
 ## Environment
-In our experiments we used Anaconda and python=3.6 on the experiments. You can set the environment using:
+In our experiments we used Anaconda and python=3.6. You can set the environment using the following steps:
+
+1. Create a conda environment and activate it:
+
+        conda create -p SUM_QE_env python=3.6 --no-default-packages 
+        
+        conda activate SUM_QE_env/      
+     
+2. Install tensorflow=1.12:
+
+        conda install tensorflow-gpu==1.12
     
-    pip install requirements.txt
+3. Install the remaining requirements 
+    
+        pip install -r requirements.txt
+        
+4. Add ``SumQE/`` to the path of the environment:
 
-In order to calculate the ROUGE-BLEU scores, you will also need [this](https://github.com/rulller/py-rouge) repository. Yoy can clone it and install it on the environment you have created. 
+        conda develop SumQE/
+        
+5. Download nltk punkt sentence tokenizer:
 
-Finally, you will need the file ``glove-wiki-gigaword-200.bin`` to be downloaded and stored into ``/input`` directory. It will be used for the embedding layer.
+        python -m nltk.downloader punkt
+        
+6. Download the binary file containing the pretrained GloVe embeddings from [here](https://drive.google.com/open?id=1QhF4HgohKz4ZAOWFNmZ_0INUzFpGMOqh) and move it to ``SumQE/input`` directory.
+
+7. In order to calculate the ROUGE and BLEU scores, clone [this](https://github.com/rulller/py-rouge) repository and add it to the environment: 
+
+        cd py-rouge
+        pip install .
+
 
 ## Datasets 
-As mentioned in the paper, we used the datasets from the DUC-05, DUC-06 and DUC-07 shared tasks. To ease processing, we constructed (with ``make_dataset.py``)
-a json file for each year ``duc_year.json`` with all the necessary information organized. In particular, files contains the peer (system) and model (human) summaries followed by the human scores 
+We used the datasets from the DUC-05, DUC-06 and DUC-07 shared tasks. To ease processing, we constructed 
+a json file for each year (``duc_year.json``) with all the necessary information organized. In particular, each file contains the peer (system) and model (human) summaries followed by the human scores 
 (the scores given by the annotators), and the ROUGE and BLEU scores that were calculated automatically.
 
 In order to construct your own datasets, you need to follow the structure shown below for each particular year. 
@@ -52,12 +76,9 @@ project
            ...
 ```
 
-If you have created the above structure correctly, the next step is to construct the datasets using the following command:
+If you have created the above structure correctly, the next step is to construct the datasets with the following command:
         
     python src/make_datasets/make_dataset.py
-
-The above procedure creates the json files for these three years. Files from other years
-may have a different format and might need different processing.
 
 ## Experiments 
 
