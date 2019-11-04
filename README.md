@@ -48,6 +48,8 @@ In our experiments we used Anaconda and python=3.6. You can set the environment 
 
         cd py-rouge
         pip install .
+        
+8. Copy by hand the file ``py-rouge/rouge/smart_common_words.txt`` into the directory: ``SUM_QE_env/lib/python3.6/site-packages/rouge ``
 
 
 ## Datasets 

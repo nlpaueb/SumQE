@@ -216,20 +216,34 @@ def main():
     for y in years:
         for mode in ['Single Task', 'Multi Task-1', 'Multi Task-5']:
 
+            LOGGER.info('\n' + '=' * 55 + '\n' + '{} {} '.format(y, mode) + '\n' + '=' * 55)
+
             train_data_path = os.path.join(INPUT_DIR, 'Bert_Train_input_{}.npy'.format(y))
             test_data_path = os.path.join(INPUT_DIR, 'Bert_Test_input_{}.npy'.format(y))
 
-            for metric in ['Q1', 'Q2', 'Q3', 'Q4', 'Q5']:
+            if mode == 'Single Task':
 
-                model_path = os.path.join(MODELS_DIR, 'BERT_{}_{}_{}.h5'.format(y, metric, mode))
+                for metric in ['Q1', 'Q2', 'Q3', 'Q4', 'Q5']:
 
-                model = train(train_path=train_data_path, human_metric=metric, mode=mode,
-                              path_to_save=model_path, **params[y][metric][mode])
+                    model_path = os.path.join(MODELS_DIR, 'BERT_{}_{}_{}.h5'.format(y, metric, mode))
+
+                    model = train(train_path=train_data_path, human_metric=metric, mode=mode,
+                                  path_to_save=model_path, **params[y][metric][mode])
+
+                    output = evaluate(model_path=model_path, test_path=test_data_path, model=model)
+
+                    compute_correlations(test_path=test_data_path, predictions=output,  human_metric=metric, mode=mode)
+
+            else:
+
+                model_path = os.path.join(MODELS_DIR, 'BERT_{}_{}.h5'.format(y, mode))
+
+                model = train(train_path=train_data_path, human_metric=None, mode=mode,
+                              path_to_save=model_path, **params[y][mode])
 
                 output = evaluate(model_path=model_path, test_path=test_data_path, model=model)
 
-                LOGGER.info('\n' + '=' * 55 + '\n' + '{} {} {} '.format(y, metric, mode) + '\n' + '=' * 55)
-                compute_correlations(test_path=test_data_path, predictions=output,  human_metric=metric, mode=mode)
+                compute_correlations(test_path=test_data_path, predictions=output, human_metric=None, mode=mode)
 
 
 if __name__ == '__main__':
