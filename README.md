@@ -115,7 +115,7 @@ dataset (DUC-05, DUC-06, DUC-07) there are 7 models.
 
 Each one can be loaded and used with the same way. ``model_path`` is the path where you saved the model you have downloaded. 
 An example:
-```
+```python
     from keras.models import load_model
     from nltk.tokenize import sent_tokenize
     
