@@ -7,7 +7,7 @@ from keras.callbacks import EarlyStopping
 from keras.models import load_model
 from scipy.stats import pearsonr, spearmanr, kendalltau
 
-from src.BERT_experiments.BERT_model import BERT, compile_bert
+from src.BERT_experiments.BERT_model import BERT, compile_bert, custom_loss
 from configuration import CONFIG_DIR
 from experiments_output import OUTPUT_DIR
 from input import INPUT_DIR
@@ -40,7 +40,7 @@ def train(train_path, human_metric, mode, path_to_save, **params):
     """
     Train the Bert Model.
     :param train_path: Path to the train data in order to load them.
-    :param human_metric: The metric for which the model will be trained at. It is needed only on 'Single Task' mode.
+    :param human_metric: The metric for which the model will be trained at.
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
     :param path_to_save: The path where the model will be saved. If SAVE_MODELS=True.
     :return: The trained model.
@@ -70,7 +70,8 @@ def train(train_path, human_metric, mode, path_to_save, **params):
     early = EarlyStopping(monitor='val_loss', patience=1, verbose=0, restore_best_weights=False)
 
     # First dimension of shape is not used
-    model = compile_bert(shape=(512, 512), dropout_rate=params['D'], lr=params['LR'], mode=mode)
+    model = compile_bert(shape=(512, 512), dropout_rate=params['D'], lr=params['LR'],
+                         mode=mode, human_metric=human_metric)
 
     model.fit(x=train_input_dict, y=train_human_metric, batch_size=params['BS'],
               epochs=10, validation_split=0.1, callbacks=[early])
@@ -92,7 +93,7 @@ def evaluate(model_path, test_path, model):
     """
 
     if SAVE_MODELS:
-        model = load_model(model_path, custom_objects={'BERT': BERT})
+        model = load_model(model_path, custom_objects={'BERT': BERT, 'custom_loss': custom_loss})
 
     test_data = dict(np.load(test_path, allow_pickle=True).item())
 
@@ -216,34 +217,20 @@ def main():
     for y in years:
         for mode in ['Single Task', 'Multi Task-1', 'Multi Task-5']:
 
-            LOGGER.info('\n' + '=' * 55 + '\n' + '{} {} '.format(y, mode) + '\n' + '=' * 55)
-
             train_data_path = os.path.join(INPUT_DIR, 'Bert_Train_input_{}.npy'.format(y))
             test_data_path = os.path.join(INPUT_DIR, 'Bert_Test_input_{}.npy'.format(y))
 
-            if mode == 'Single Task':
+            for metric in ['Q1', 'Q2', 'Q3', 'Q4', 'Q5']:
 
-                for metric in ['Q1', 'Q2', 'Q3', 'Q4', 'Q5']:
+                model_path = os.path.join(MODELS_DIR, 'BERT_{}_{}_{}.h5'.format(y, metric, mode))
 
-                    model_path = os.path.join(MODELS_DIR, 'BERT_{}_{}_{}.h5'.format(y, metric, mode))
-
-                    model = train(train_path=train_data_path, human_metric=metric, mode=mode,
-                                  path_to_save=model_path, **params[y][metric][mode])
-
-                    output = evaluate(model_path=model_path, test_path=test_data_path, model=model)
-
-                    compute_correlations(test_path=test_data_path, predictions=output,  human_metric=metric, mode=mode)
-
-            else:
-
-                model_path = os.path.join(MODELS_DIR, 'BERT_{}_{}.h5'.format(y, mode))
-
-                model = train(train_path=train_data_path, human_metric=None, mode=mode,
-                              path_to_save=model_path, **params[y][mode])
+                model = train(train_path=train_data_path, human_metric=metric, mode=mode,
+                              path_to_save=model_path, **params[y][metric][mode])
 
                 output = evaluate(model_path=model_path, test_path=test_data_path, model=model)
 
-                compute_correlations(test_path=test_data_path, predictions=output, human_metric=None, mode=mode)
+                LOGGER.info('\n' + '=' * 55 + '\n' + '{} {} {} '.format(y, metric, mode) + '\n' + '=' * 55)
+                compute_correlations(test_path=test_data_path, predictions=output, human_metric=metric, mode=mode)
 
 
 if __name__ == '__main__':
