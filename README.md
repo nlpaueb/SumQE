@@ -84,34 +84,37 @@ If you have created the above structure correctly, the next step is to construct
     
 ## Pre-trained Models
 All the models that used on the paper can be found [here](https://archive.org/details/sum-qe). For each 
-dataset (DUC-05, DUC-06, DUC-07) there are 7 models.
+dataset (DUC-05, DUC-06, DUC-07) there are 15 models available. 15 extra models were added, trained in all of the 3 DUC 
+datasets.
 
-| Models  | 
-|---------|
-| **2005**|
-| [BERT_Q1 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2005_Q1.h5)
-| [BERT_Q2 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2005_Q2.h5)
-| [BERT_Q3 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2005_Q3.h5)
-| [BERT_Q4 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2005_Q4.h5)
-| [BERT_Q5 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2005_Q5.h5)
-| [BERT_Multi Task-1](https://archive.org/download/sum-qe/BERT_2e-5_for_2005_Multi-Task-1.h5) (1 Neuron at the top, produces 5 outputs \[Q1...Q5\])
-| [BERT_Multi Task-5](https://archive.org/download/sum-qe/BERT_2e-5_for_2005_Multi-Task-5.h5) (5 Different neurons at the top produce, 1 output each one \[Q1\]...\[Q5\])
-| **2006**|
-| [BERT_Q1 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2006_Q1.h5)
-| [BERT_Q2 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2006_Q2.h5)
-| [BERT_Q3 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2006_Q3.h5)
-| [BERT_Q4 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2006_Q4.h5)
-| [BERT_Q5 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2006_Q5.h5)
-| [BERT_Multi Task-1](https://archive.org/download/sum-qe/BERT_2e-5_for_2006_Multi-Task-1.h5) (1 Neuron at the top, produces 5 outputs \[Q1...Q5\])
-| [BERT_Multi Task-5](https://archive.org/download/sum-qe/BERT_2e-5_for_2006_Multi-Task-5.h5) (5 Different neurons at the top produce, 1 output each one \[Q1\]...\[Q5\])
-| **2007**|
-| [BERT_Q1 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2007_Q1.h5)
-| [BERT_Q2 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2007_Q2.h5)
-| [BERT_Q3 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2007_Q3.h5)
-| [BERT_Q4 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2007_Q4.h5)
-| [BERT_Q5 (Single Task)](https://archive.org/download/sum-qe/BERT_2e-5_for_2007_Q5.h5)
-| [BERT_Multi Task-1](https://archive.org/download/sum-qe/BERT_2e-5_for_2007_Multi-Task-1.h5) (1 Neuron at the top, produces 5 outputs \[Q1...Q5\])
-| [BERT_Multi Task-5](https://archive.org/download/sum-qe/BERT_2e-5_for_2007_Multi-Task-5.h5) (5 Different neurons at the top produce, 1 output each one \[Q1\]...\[Q5\])
+| Models  |         |         |
+|---------|---------|---------|
+| **2005**| **2006**| **2007**| 
+| [BERT_Q1 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q1_Single%20Task.h5)   | [BERT_Q1 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q1_Single%20Task.h5)    | [BERT_Q1 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q1_Single%20Task.h5) 
+| [BERT_Q2 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q2_Single%20Task.h5)   | [BERT_Q2 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q2_Single%20Task.h5)    | [BERT_Q2 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q2_Single%20Task.h5)
+| [BERT_Q3 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q3_Single%20Task.h5)   | [BERT_Q3 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q3_Single%20Task.h5)    | [BERT_Q3 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q3_Single%20Task.h5)
+| [BERT_Q4 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q4_Single%20Task.h5)   | [BERT_Q4 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q4_Single%20Task.h5)    | [BERT_Q4 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q4_Single%20Task.h5)
+| [BERT_Q5 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q5_Single%20Task.h5)   | [BERT_Q5 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q5_Single%20Task.h5)    | [BERT_Q5 (Single Task)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q5_Single%20Task.h5)
+| [BERT_Q1 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q1_Multi%20Task-1.h5) | [BERT_Q1 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q1_Multi%20Task-1.h5)  | [BERT_Q1 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q1_Multi%20Task-1.h5) 
+| [BERT_Q2 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q2_Multi%20Task-1.h5) | [BERT_Q2 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q2_Multi%20Task-1.h5)  | [BERT_Q2 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q2_Multi%20Task-1.h5) 
+| [BERT_Q3 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q3_Multi%20Task-1.h5) | [BERT_Q3 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q3_Multi%20Task-1.h5)  | [BERT_Q3 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q3_Multi%20Task-1.h5) 
+| [BERT_Q4 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q4_Multi%20Task-1.h5) | [BERT_Q4 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q4_Multi%20Task-1.h5)  | [BERT_Q4 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q4_Multi%20Task-1.h5) 
+| [BERT_Q5 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q5_Multi%20Task-1.h5) | [BERT_Q5 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q5_Multi%20Task-1.h5)  | [BERT_Q5 (Multi Task-1)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q5_Multi%20Task-1.h5) 
+| [BERT_Q1 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q1_Multi%20Task-5.h5) | [BERT_Q1 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q1_Multi%20Task-5.h5)  | [BERT_Q1 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q1_Multi%20Task-5.h5) 
+| [BERT_Q2 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q2_Multi%20Task-5.h5) | [BERT_Q2 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q2_Multi%20Task-5.h5)  | [BERT_Q2 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q2_Multi%20Task-5.h5) 
+| [BERT_Q3 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q3_Multi%20Task-5.h5) | [BERT_Q3 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q3_Multi%20Task-5.h5)  | [BERT_Q3 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q3_Multi%20Task-5.h5) 
+| [BERT_Q4 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q4_Multi%20Task-5.h5) | [BERT_Q4 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q4_Multi%20Task-5.h5)  | [BERT_Q4 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q4_Multi%20Task-5.h5) 
+| [BERT_Q5 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q5_Multi%20Task-5.h5) | [BERT_Q5 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q5_Multi%20Task-5.h5)  | [BERT_Q5 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q5_Multi%20Task-5.h5) 
+
+
+Reminders
+* Multi Task-1 --> 1 Neuron at the top, produces 5 outputs \[Q1...Q5\]
+* Multi Task-5 --> 5 Different neurons at the top produce, produce 1 output each one \[Q1\]...\[Q5\]
+
+You can download a model using ``wget`` command as follows:
+
+    wget https://archive.org/download/sum-qe/BERT_DUC_2005_Q1_Multi%20Task-1.h5
+
 
 Each one can be loaded and used with the same way. ``model_path`` is the path where you saved the model you have downloaded. 
 An example:
