@@ -5,27 +5,26 @@ import numpy as np
 import random
 
 from keras.layers import Layer, Input, Dense, Dropout, Concatenate
+from keras.losses import mean_squared_error
 from keras.models import Model
 from keras.optimizers import Adam
 
 
 class BERT(Layer):
-    def __init__(self, output_representation=0, **kwargs):
+    def __init__(self, output_representation='pooled_output', hierarchical=False, **kwargs):
         self.bert = None
+        self.hierarchical = hierarchical
         super(BERT, self).__init__(**kwargs)
 
-        if output_representation:
-            self.output_representation = 'sequence_output'
-        else:
-            self.output_representation = 'pooled_output'
+        self.output_representation = output_representation
 
     def build(self, input_shape):
         self.bert = hub.Module('https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1',
                                trainable=True, name="{}_module".format(self.name))
 
         # Remove unused layers and set trainable parameters
-        self.trainable_weights += [var for var in self.bert.variables
-                                   if not "/cls/" in var.name and not "/pooler/" in var.name]
+        self._trainable_weights += [var for var in self.bert.variables
+                                    if not "/cls/" in var.name and not "/pooler/" in var.name]
         super(BERT, self).build(input_shape)
 
     def call(self, x, mask=None):
@@ -49,13 +48,38 @@ class BERT(Layer):
             return (None, 512, 768)
 
 
-def compile_bert(shape, dropout_rate, lr, mode):
+def custom_loss(y_true, y_pred):
+    """
+    This function computes the loss with respect to a single linguistic quality score. In Single-Task mode, this
+    function calculates the 'mse' between the y_true and y_pred but in Multi-Task mode calculates the 'mse' for a
+    specific quality measure ignoring the other outputs of the model
+    :param y_true: The ground truth scores
+    :param y_pred: The predicted scores
+    :return:
+    """
+    return mean_squared_error(y_pred=y_pred[:, QUALITY_INDEX], y_true=y_true[:, QUALITY_INDEX])
+
+
+def set_quality_index(mode, quality):
+    """
+    This function is only used just to set a value in the QUALITY_INDEX variable used in custom loss
+    :param mode:
+    :param quality:
+    :return:
+    """
+    metrics_indexes = {'Q1': 0, 'Q2': 1, 'Q3': 2, 'Q4': 3, 'Q5': 4}
+    global QUALITY_INDEX
+    QUALITY_INDEX = 0 if mode == 'Single Task' else metrics_indexes[quality]
+
+
+def compile_bert(shape, dropout_rate, lr, mode, human_metric):
     """
     Using the above class, creates, compiles the and returns the BERT model ready to be trained
     :param shape: The Input shape (We used 512 as the max bpes that can be fit).
     :param dropout_rate: The dropout rate of the model.
     :param lr: The learning rate of the model.
     :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].
+    :param human_metric: The metric for which the model will be trained at.
     :return: The compiler model ready to be used.
     """
     random.seed(11)
@@ -89,6 +113,7 @@ def compile_bert(shape, dropout_rate, lr, mode):
         model = Model(inputs=[word_inputs, mask_inputs, seg_inputs],
                       outputs=[Concatenate()([output_q1, output_q2, output_q3, output_q4, output_q5])])
 
-    model.compile(optimizer=Adam(lr=lr), loss='mse', loss_weights=None)
+    set_quality_index(mode=mode, quality=human_metric)
+    model.compile(optimizer=Adam(lr=lr), loss='mse', loss_weights=None, metrics=[custom_loss])
 
     return model
