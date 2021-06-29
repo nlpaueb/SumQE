@@ -86,9 +86,9 @@ dataset (DUC-05, DUC-06, DUC-07) there are 15 models available. 15 extra models 
 datasets.
 
 <table>
-    <tr><td colspan="4" align="center"> Models </ td></tr>
-    <tr><td colspan="4" align="center"> Train years </ td></tr>
-    <tr><td align="center"> 2006+2007 </ td><td align="center"> 2005+2007 </ td><td align="center"> 2005+2006 </ td><td align="center"> 2005+2006+2007 </ td></tr>
+    <tr><th colspan="4" align="center"> Models </ th></tr>
+    <tr><th colspan="4" align="center"> Train years </ th></tr>
+    <tr><th align="center"> 2006+2007 </ th><th align="center"> 2005+2007 </ th><th align="center"> 2005+2006 </ th><th align="center"> 2005+2006+2007 </ th></tr>
     <tr align="center"><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2005_Q1_Single%20Task.h5"> BERT_Q1 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2006_Q1_Single%20Task.h5"> BERT_Q1 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2007_Q1_Single%20Task.h5">BERT_Q1 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_all_Q1_Single%20Task.h5">BERT_Q1 (Single Task) </a></td></tr>
     <tr align="center"><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2005_Q2_Single%20Task.h5"> BERT_Q2 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2006_Q2_Single%20Task.h5"> BERT_Q2 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2007_Q2_Single%20Task.h5">BERT_Q2 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_all_Q2_Single%20Task.h5">BERT_Q2 (Single Task) </a></td></tr>
     <tr align="center"><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2005_Q3_Single%20Task.h5"> BERT_Q3 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2006_Q3_Single%20Task.h5"> BERT_Q3 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2007_Q3_Single%20Task.h5">BERT_Q3 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_all_Q3_Single%20Task.h5">BERT_Q3 (Single Task) </a></td></tr>
