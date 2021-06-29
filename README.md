@@ -88,7 +88,7 @@ datasets.
 <table>
     <tr><th colspan="4" align="center"> Models </ th></tr>
     <tr><th colspan="4" align="center"> Train years </ th></tr>
-    <tr><th align="center"> 2006+2007 </ th><th align="center"> 2005+2007 </ th><th align="center"> 2005+2006 </ th><th align="center"> 2005+2006+2007 </ th></tr>
+    <tr><th align="center"> 2006 + 2007 </ th><th align="center"> 2005 + 2007 </ th><th align="center"> 2005 + 2006 </ th><th align="center"> 2005 + 2006 + 2007 </ th></tr>
     <tr align="center"><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2005_Q1_Single%20Task.h5"> BERT_Q1 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2006_Q1_Single%20Task.h5"> BERT_Q1 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2007_Q1_Single%20Task.h5">BERT_Q1 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_all_Q1_Single%20Task.h5">BERT_Q1 (Single Task) </a></td></tr>
     <tr align="center"><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2005_Q2_Single%20Task.h5"> BERT_Q2 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2006_Q2_Single%20Task.h5"> BERT_Q2 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2007_Q2_Single%20Task.h5">BERT_Q2 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_all_Q2_Single%20Task.h5">BERT_Q2 (Single Task) </a></td></tr>
     <tr align="center"><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2005_Q3_Single%20Task.h5"> BERT_Q3 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2006_Q3_Single%20Task.h5"> BERT_Q3 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2007_Q3_Single%20Task.h5">BERT_Q3 (Single Task)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_all_Q3_Single%20Task.h5">BERT_Q3 (Single Task) </a></td></tr>
@@ -106,7 +106,7 @@ datasets.
     <tr align="center"><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2005_Q5_Multi%20Task-5.h5"> BERT_Q5 (Multi Task-5)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2006_Q5_Multi%20Task-5.h5"> BERT_Q5 (Multi Task-5)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_2007_Q5_Multi%20Task-5.h5">BERT_Q5 (Multi Task-5)</a></td><td><a href="https://archive.org/download/sum-qe/BERT_DUC_all_Q5_Multi%20Task-5.h5">BERT_Q5 (Multi Task-5) </a></td></tr>
 </table>
 
-Model naming explanation
+Model naming explanation:
 * Single Task: Trained on a single quality score, e.g., Q1.
 * Multi Task-1: Trained on all quality scores (Q1,...,Q5) using 1 linear regressor with 5 outputs.
 * Multi Task-5: Trained on all quality scores (Q1,...,Q5) using 5 linear regressor with 1 output each.
