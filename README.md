@@ -15,8 +15,6 @@ This is the source code for SUM-QE, a BERT-based Summary Quality Estimation Mode
 
 A preprint of the paper is available on [arXiv](https://arxiv.org/abs/1909.00578).
 
-**The code will be polished and fully documented before EMNLP-IJCNLP in November 2019.**
-
 ## Environment
 In our experiments we used Anaconda and python=3.6. You can set the environment using the following steps:
 
@@ -106,12 +104,29 @@ datasets.
 | [BERT_Q4 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q4_Multi%20Task-5.h5) | [BERT_Q4 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q4_Multi%20Task-5.h5)  | [BERT_Q4 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q4_Multi%20Task-5.h5) | [BERT_Q4 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_all_Q4_Multi%20Task-5.h5)
 | [BERT_Q5 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2005_Q5_Multi%20Task-5.h5) | [BERT_Q5 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2006_Q5_Multi%20Task-5.h5)  | [BERT_Q5 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_2007_Q5_Multi%20Task-5.h5) | [BERT_Q5 (Multi Task-5)](https://archive.org/download/sum-qe/BERT_DUC_all_Q5_Multi%20Task-5.h5)
 
+<table>
+    <tr>
+                 <td colspan="4" align="center"> Models </ td>
+   </tr>
+    <tr>
+                 <td colspan="4" align="center"> Train years </ td>
+   </tr>
+    <tr>
+                 <td align="center"> 2006+2007 </ td>
+                  <td align="center"> 2005+2007 </ td>
+                  <td align="center"> 2005+2006 </ td>
+                 <td align="center"> 2005+2006+2007 </ td>
+    </tr>
 
-Reminders
-* Multi Task-1 --> 1 Neuron at the top, produces 5 outputs \[Q1...Q5\]
-* Multi Task-5 --> 5 Different neurons at the top produce, produce 1 output each one \[Q1\]...\[Q5\]
+</table>
 
-You can download a model using ``wget`` command as follows:
+Model naming explanation
+* Single Task: Trained on a single quality score, e.g., Q1.
+* Multi Task-1: Trained on all quality scores (Q1,...,Q5) using 1 linear regressor with 5 outputs.
+* Multi Task-5: Trained on all quality scores (Q1,...,Q5) using 5 linear regressor with 1 output each.
+* For multi-task models, early stopping was performed on a single quality score indicated by the name of the model, e.g., for ``BERT_Q3 (Multi Task-1)`` early stopped  was performed on Q3.
+
+You can download a model either by clicking on the corresponding link in the table or by using the ``wget`` command as follows:
 
     wget https://archive.org/download/sum-qe/BERT_DUC_2005_Q1_Multi%20Task-1.h5
 
@@ -120,10 +135,12 @@ Each one can be loaded and used with the same way. ``model_path`` is the path wh
 An example:
 ```python
 # scr/examples.py
+import numpy as np
+
 from keras.models import load_model
 from nltk.tokenize import sent_tokenize
-    
-from src.BERT_model import BERT
+
+from src.BERT_experiments.BERT_model import BERT, custom_loss, set_quality_index
 from src.vectorizer import BERTVectorizer
 
 MODE = 'Single Task'
