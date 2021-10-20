@@ -1,7 +1,7 @@
  # SumQE
 This is the source code for SUM-QE, a BERT-based Summary Quality Estimation Model. If you use the code for your research, please cite the following paper.  
 >*Stratos Xenouleas, Prodromos Malakasiotis, Marianna Apidianaki and Ion Androutsopoulos (2019), SUM-QE: a BERT-based Summary Quality Estimation Model.
-> Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP 2019), November 3-7, Hong Kong. (to appear)*
+> Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP 2019), November 3-7, Hong Kong.*
 ---
 
     @inproceedings{Xenouleas:EMNLP-IJCNLP19,
@@ -14,6 +14,9 @@ This is the source code for SUM-QE, a BERT-based Summary Quality Estimation Mode
                    }
 
 A preprint of the paper is available on [arXiv](https://arxiv.org/abs/1909.00578).
+
+## Demo
+A simple example (similar to `scr/examples.py`) of how to load and run the trained models can be found in [this](https://colab.research.google.com/drive/1raC_ptGPNbcOyHDSSjqokr9YooeRNBbA?usp=sharing) Google Colab notebook.
 
 ## Environment
 In our experiments we used Anaconda and python=3.6. You can set the environment using the following steps:
