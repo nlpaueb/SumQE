@@ -14,7 +14,7 @@ Keras==2.2.5
 kiwisolver==1.1.0
 matplotlib==3.1.1
 networkx==2.3
-nltk==3.6.5
+nltk==3.6.6
 Pillow==8.3.2
 pymagnitude==0.1.120
 pymongo==3.9.0
